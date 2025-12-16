@@ -142,9 +142,9 @@
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="downloadFile()" class="file-btn">↓ Sichern</button>
+            <button onclick="downloadFile()" class="file-btn">↓ Sichern (.txt)</button>
             
-            <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
+            <input type="file" id="fileInput" style="display:none" accept=".txt,text/plain" onchange="uploadFile(this)">
             
             <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
             <br><br>
@@ -155,7 +155,8 @@
 
     <script>
         let prices = { gold: 0, silver: 0 };
-        let privacyMode = true; // Startet versteckt
+        // START: Immer versteckt
+        let privacyMode = true; 
 
         async function init() {
             updateEyeIcon();
@@ -163,7 +164,6 @@
             await fetchPrices();
         }
 
-        // --- PREIS API ---
         async function fetchPrices() {
             const badge = document.getElementById('statusBadge');
             badge.innerText = "Lade...";
@@ -197,7 +197,6 @@
             }
         }
 
-        // --- ANZEIGE ---
         function togglePrivacy() {
             privacyMode = !privacyMode;
             updateEyeIcon();
@@ -233,7 +232,6 @@
                 let val = i.p; 
                 if(prices.gold > 0) val = i.w * currentP;
                 const profit = val - i.p;
-                
                 totalVal += val;
                 totalInvest += i.p;
 
@@ -265,23 +263,17 @@
 
             document.getElementById('totalValue').innerText = fmt(totalVal);
             document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest);
-            
             const totalProfit = totalVal - totalInvest;
             const pElem = document.getElementById('profitDisplay');
-            
             if(prices.gold > 0) {
-                if(privacyMode) {
-                    pElem.innerText = "••••••";
-                } else {
+                if(privacyMode) { pElem.innerText = "••••••"; } 
+                else {
                     const prefix = totalProfit >= 0 ? '+ ' : '- ';
                     pElem.innerText = prefix + Math.abs(totalProfit).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
                 }
-            } else {
-                pElem.innerText = privacyMode ? "••••••" : "(Offline)";
-            }
+            } else { pElem.innerText = privacyMode ? "••••••" : "(Offline)"; }
         }
 
-        // --- EINGABE ---
         function add() {
             let wVal = document.getElementById('weight').value.replace(',', '.');
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
@@ -289,33 +281,25 @@
             const p = parseFloat(pVal);
             const t = document.getElementById('type').value;
             const name = document.getElementById('itemName').value || (t==='gold'?'Gold':'Silber');
-
             if (!w || !p) return;
-
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, name });
             localStorage.setItem('db', JSON.stringify(items));
-            
             document.getElementById('weight').value = '';
             document.getElementById('buyPrice').value = '';
             document.getElementById('itemName').value = '';
             render();
         }
 
-        // --- DATEI FIX ---
+        // --- DATEI ALS TXT SPEICHERN ---
         function downloadFile() {
             const data = localStorage.getItem('db') || '[]';
-            // Wir nutzen jetzt .txt damit das iPhone es sicher anzeigt
             const date = new Date().toISOString().slice(0,10);
-            
-            // Wichtig: type='text/plain' für maximale Kompatibilität
-            const blob = new Blob([data], {type: 'text/plain'});
+            const blob = new Blob([data], {type: 'text/plain'}); // Text/Plain erzwingen
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.href = url;
-            // Wir nennen es .txt, damit das iPhone keine Angst davor hat
-            a.download = `depot_backup_${date}.txt`;
+            a.download = `depot_backup_${date}.txt`; // Endung .txt erzwingen
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -331,11 +315,9 @@
                     const json = JSON.parse(e.target.result);
                     if(Array.isArray(json)) {
                         localStorage.setItem('db', JSON.stringify(json));
-                        render(); alert('Erfolgreich geladen!');
-                    } else {
-                        alert('Datei-Format falsch.');
-                    }
-                } catch(err) { alert("Konnte Datei nicht lesen."); }
+                        render(); alert('Geladen!');
+                    } else { alert('Falsches Format'); }
+                } catch(err) { alert("Fehler beim Lesen"); }
             };
             reader.readAsText(file);
         }
