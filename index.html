@@ -3,108 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gold Depot</title>
+    <title>Depot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
         /* 1. LAYOUT: FIXIERTER BILDSCHIRM */
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
+            height: 100%; margin: 0; padding: 0;
             background-color: #000000;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #b0b0b0; /* Grundtext ist jetzt Grau, nicht Weiß */
+            font-family: -apple-system, sans-serif;
             font-size: 12px;
-            overflow: hidden; /* Verhindert, dass die ganze App scrollt */
-            display: flex;
-            flex-direction: column; /* Stapelt Header, Input und Liste übereinander */
+            overflow: hidden; 
+            display: flex; flex-direction: column;
         }
 
         /* 2. HEADER (Fest) */
         .fixed-top-area {
-            flex-shrink: 0; /* Darf nicht kleiner werden */
-            background: #000;
-            z-index: 100;
+            flex-shrink: 0; background: #000; z-index: 100;
             border-bottom: 1px solid #222;
         }
 
         .header-box { 
             padding: 15px 20px 10px 20px; 
-            background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+            background: #050505;
         }
         
+        /* Werte: Hellgrau statt Gold */
         .big-value { 
-            font-size: 32px; font-weight: 700; color: #FFD700; 
+            font-size: 32px; font-weight: 700; color: #e0e0e0; 
             letter-spacing: -1px; line-height: 1.1; margin-top: 5px;
         }
 
-        .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #999; }
-        .profit-badge { 
-            background: #111; border: 1px solid #333; 
-            padding: 2px 8px; border-radius: 6px; font-weight: 600;
-        }
-        .status-dot { 
-            width: 8px; height: 8px; border-radius: 50%; background: #333; 
-            display: inline-block; float: right; cursor: pointer; margin-top: 5px;
+        .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #666; }
+        
+        /* Button für Tarnmodus (Auge) */
+        .eye-btn {
+            background: none; border: 1px solid #333; color: #888;
+            border-radius: 6px; padding: 2px 10px; font-size: 16px;
+            cursor: pointer; float: right;
         }
 
-        /* 3. EINGABEBEREICH (Fest) */
+        .status-dot { 
+            width: 6px; height: 6px; border-radius: 50%; background: #333; 
+            display: inline-block; margin-right: 10px; cursor: pointer;
+        }
+
+        /* 3. EINGABEBEREICH */
         .input-container {
-            padding: 10px;
-            background: #080808;
-            border-top: 1px solid #1a1a1a;
+            padding: 10px; background: #080808; border-top: 1px solid #1a1a1a;
         }
         .input-row { display: flex; gap: 5px; align-items: center; }
         
-        /* Input Design */
         .mini-input { 
-            background-color: #1a1a1a !important; 
+            background-color: #151515 !important; 
             border: 1px solid #333 !important; 
-            color: #ffffff !important; 
-            -webkit-text-fill-color: #ffffff !important; 
+            color: #ccc !important; /* Eingabe hellgrau */
+            -webkit-text-fill-color: #ccc !important; 
             font-size: 12px !important; height: 32px !important; 
             padding: 0 8px !important; border-radius: 6px !important; width: 100%;
         }
-        .mini-input:focus { border-color: #FFD700 !important; outline: none; }
+        .mini-input:focus { border-color: #666 !important; outline: none; }
         
+        /* Button Grau statt Gold */
         .btn-ok { 
-            background: #FFD700; color: #000; border: none; 
-            height: 32px; font-size: 11px; font-weight: 800; 
+            background: #333; color: #ccc; border: 1px solid #444;
+            height: 32px; font-size: 11px; font-weight: 700; 
             border-radius: 6px; width: 100%; padding: 0; cursor: pointer;
         }
 
-        /* 4. SCROLL-BEREICH (Der einzige Teil, der sich bewegt) */
+        /* 4. SCROLL-LISTE */
         .scrollable-list {
-            flex-grow: 1; /* Nimmt den ganzen restlichen Platz ein */
-            overflow-y: auto; /* Erlaubt scrollen nur hier */
-            -webkit-overflow-scrolling: touch; /* Weiches Scrollen auf iPhone */
-            background: #000;
-            padding-bottom: 40px; /* Platz unten damit man das letzte Item sieht */
+            flex-grow: 1; overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
+            background: #000; padding-bottom: 40px;
         }
 
-        /* Listen-Elemente */
         .list-row { 
-            border-bottom: 1px solid #151515; padding: 12px 15px; background: #000; 
+            border-bottom: 1px solid #111; padding: 12px 15px; background: #000; 
         }
-        .row-top { display: flex; justify-content: space-between; font-size: 14px; color: #eee; font-weight: 500; }
-        .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-top: 4px; }
+        /* Alles etwas dunkler gehalten */
+        .row-top { display: flex; justify-content: space-between; font-size: 14px; color: #ccc; font-weight: 500; }
+        .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 4px; }
 
-        /* Footer / Backup (Ganz unten in der Liste) */
-        .footer-area {
-            text-align: center; padding: 30px 10px; opacity: 0.6;
-        }
+        /* Footer */
+        .footer-area { text-align: center; padding: 30px 10px; opacity: 0.4; }
         .file-btn {
-            background: #111; color: #fff; border: 1px solid #333;
+            background: #111; color: #888; border: 1px solid #333;
             padding: 8px 15px; border-radius: 6px; font-size: 11px; margin: 0 5px;
             text-decoration: none; display: inline-block;
         }
 
-        /* Farben */
-        .c-gold { color: #FFD700; }
-        .c-silver { color: #aaa; }
-        .p-plus { color: #32d74b; }
-        .p-minus { color: #ff453a; }
         .del-btn { color: #333; font-size: 16px; margin-left: 10px; padding: 0 5px; }
     </style>
 </head>
@@ -112,14 +101,19 @@
 
     <div class="fixed-top-area">
         <div class="header-box">
-            <div id="statusDot" class="status-dot" onclick="fetchPrices()"></div>
-            <div style="font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase;">PORTFOLIO</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center;">
+                    <div id="statusDot" class="status-dot" onclick="fetchPrices()"></div>
+                    <span style="font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase;">DEPOT</span>
+                </div>
+                <button onclick="togglePrivacy()" class="eye-btn" id="eyeBtn">👁️</button>
+            </div>
             
             <div id="totalValue" class="big-value">0,00 €</div>
             
             <div class="stats-row">
                 <span id="totalInvest">EK: 0 €</span>
-                <span id="profitDisplay" class="profit-badge" style="color:#555">...</span>
+                <span id="profitDisplay">...</span>
             </div>
         </div>
 
@@ -138,41 +132,59 @@
                     <input type="number" id="buyPrice" class="mini-input" placeholder="EK €" inputmode="decimal">
                 </div>
                 <div style="width: 36%;">
-                    <button onclick="add()" class="btn-ok">HINZUFÜGEN</button>
+                    <button onclick="add()" class="btn-ok">OK</button>
                 </div>
             </div>
             <div class="input-row mt-2">
-                <input type="text" id="itemName" class="mini-input" placeholder="Beschreibung (z.B. Krügerrand)">
+                <input type="text" id="itemName" class="mini-input" placeholder="Beschreibung">
             </div>
         </div>
     </div>
-    <div class="scrollable-list" id="listContainer">
-        
+
+
+    <div class="scrollable-list">
         <div id="list"></div>
         
         <div class="footer-area">
-            <p style="color:#444; font-size:10px; letter-spacing:1px; margin-bottom:10px;">DATENSICHERUNG</p>
-            <button onclick="downloadFile()" class="file-btn">↓ Speichern</button>
+            <button onclick="downloadFile()" class="file-btn">↓ Save</button>
             <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
-            <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
+            <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Load</button>
             <br><br>
-            <span onclick="wipe()" style="font-size:10px; color:#333; cursor:pointer; text-decoration:underline;">Alles zurücksetzen</span>
+            <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer;">Reset</span>
         </div>
     </div>
 
 
     <script>
         let prices = { gold: 0, silver: 0 };
+        let privacyMode = false; // Standard: Werte sichtbar
 
         async function init() {
             render();
             await fetchPrices();
         }
 
+        // Tarnmodus umschalten
+        function togglePrivacy() {
+            privacyMode = !privacyMode;
+            const btn = document.getElementById('eyeBtn');
+            // Icon ändern: Offenes Auge oder durchgestrichenes Auge
+            btn.innerText = privacyMode ? '🙈' : '👁️'; 
+            render();
+        }
+
+        // Hilfsfunktion: Zahl formatieren oder verstecken
+        function fmt(num, isCurrency = true) {
+            if (privacyMode) return "••••••";
+            return num.toLocaleString('de-DE', {
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2
+            }) + (isCurrency ? ' €' : '');
+        }
+
         async function fetchPrices() {
             const dot = document.getElementById('statusDot');
-            const pDisplay = document.getElementById('profitDisplay');
-            dot.style.background = "orange";
+            dot.style.background = "#888"; // Grau beim Laden
 
             try {
                 const timestamp = new Date().getTime();
@@ -185,16 +197,10 @@
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
                 
-                dot.style.background = "#32d74b";
+                dot.style.background = "#555"; // Dunkelgrau wenn online
                 render();
             } catch (e) {
-                if(e.message === "429") {
-                    dot.style.background = "red";
-                    pDisplay.innerText = "Warte kurz...";
-                } else {
-                    dot.style.background = "red";
-                    pDisplay.innerText = "Offline";
-                }
+                dot.style.background = "#333"; // Fast schwarz wenn offline
             }
         }
 
@@ -235,21 +241,26 @@
                 totalVal += val;
                 totalInvest += i.p;
 
+                // Profit Vorzeichen Logik
+                const prefix = profit >= 0 ? '+ ' : '- ';
+                // Wir nehmen den absoluten Wert für die Anzeige, da das Vorzeichen davor steht
+                const absProfit = Math.abs(profit);
+
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 div.innerHTML = `
                     <div class="row-top">
                         <span style="display:flex; align-items:center;">
-                            <span class="${i.t==='gold'?'c-gold':'c-silver'}" style="font-size:18px; margin-right:8px;">●</span> 
-                            <span>${i.w}g <span style="font-weight:normal; color:#888; font-size:12px; margin-left:4px;">${i.name}</span></span>
+                            <span style="color:${i.t==='gold'?'#999':'#555'}; font-size:14px; margin-right:8px;">●</span> 
+                            <span>${i.w}g <span style="font-weight:normal; color:#555; font-size:12px; margin-left:4px;">${i.name}</span></span>
                         </span>
-                        <span>${prices.gold > 0 ? val.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '?'} €</span>
+                        <span style="color:#ccc;">${fmt(val)}</span>
                     </div>
                     <div class="row-bot">
-                        <span style="margin-left: 24px;">EK: ${i.p.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</span>
+                        <span style="margin-left: 20px;">EK: ${fmt(i.p)}</span>
                         <span>
-                            <span class="${profit>=0?'p-plus':'p-minus'}">
-                                ${profit>=0?'+':''}${profit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €
+                            <span style="color:#777;">
+                                ${privacyMode ? '••••••' : (prefix + absProfit.toLocaleString('de-DE', {minimumFractionDigits:2}) + ' €')}
                             </span>
                             <span onclick="del(${i.id})" class="del-btn">×</span>
                         </span>
@@ -258,31 +269,36 @@
                 list.appendChild(div);
             });
 
-            document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
-            document.getElementById('totalInvest').innerText = 'EK: ' + totalInvest.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' €';
+            // Header Update
+            document.getElementById('totalValue').innerText = fmt(totalVal);
+            document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest);
             
             const totalProfit = totalVal - totalInvest;
             const pElem = document.getElementById('profitDisplay');
+            
+            // Logik für +/- Anzeige beim Gesamtgewinn
             if(prices.gold > 0) {
-                pElem.innerText = (totalProfit>=0?'+':'') + totalProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
-                pElem.className = "profit-badge " + (totalProfit>=0?'p-plus':'p-minus');
-                pElem.style.borderColor = (totalProfit>=0?'#32d74b':'#ff453a');
+                if(privacyMode) {
+                    pElem.innerText = "••••••";
+                } else {
+                    const prefix = totalProfit >= 0 ? '+ ' : '- ';
+                    pElem.innerText = prefix + Math.abs(totalProfit).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+                }
+            } else {
+                pElem.innerText = "...";
             }
         }
 
+        // --- DATEI FUNKTIONEN ---
         function downloadFile() {
             const data = localStorage.getItem('db') || '[]';
             const date = new Date().toISOString().slice(0,10);
             const blob = new Blob([data], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `depot_${date}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            a.href = url; a.download = `depot_${date}.json`;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
         function uploadFile(input) {
@@ -294,10 +310,9 @@
                     const json = JSON.parse(e.target.result);
                     if(Array.isArray(json)) {
                         localStorage.setItem('db', JSON.stringify(json));
-                        render();
-                        alert('Geladen!');
+                        render(); alert('Geladen!');
                     }
-                } catch(err) { alert('Fehler!'); }
+                } catch(err) {}
             };
             reader.readAsText(file);
         }
