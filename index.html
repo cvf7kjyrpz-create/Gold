@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* 1. LAYOUT & FARBEN */
+        /* 1. LAYOUT & DESIGN */
         html, body {
             height: 100%; margin: 0; padding: 0;
             background-color: #000000;
@@ -36,7 +36,7 @@
 
         .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #666; }
         
-        /* Auge Button & Update Button */
+        /* Buttons oben */
         .icon-btn {
             background: none; border: 1px solid #333; color: #888;
             border-radius: 6px; padding: 2px 8px; font-size: 14px;
@@ -142,9 +142,11 @@
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="downloadFile()" class="file-btn">↓ Save</button>
+            <button onclick="downloadFile()" class="file-btn">↓ Sichern</button>
+            
             <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
-            <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Load</button>
+            
+            <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
             <br><br>
             <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer;">Reset</span>
         </div>
@@ -153,17 +155,15 @@
 
     <script>
         let prices = { gold: 0, silver: 0 };
-        // START: Immer versteckt
-        let privacyMode = true; 
+        let privacyMode = true; // Startet versteckt
 
         async function init() {
             updateEyeIcon();
             render();
-            // Automatisch laden beim Start
             await fetchPrices();
         }
 
-        // --- PREIS API LOGIK ---
+        // --- PREIS API ---
         async function fetchPrices() {
             const badge = document.getElementById('statusBadge');
             badge.innerText = "Lade...";
@@ -171,27 +171,21 @@
             badge.style.borderColor = "orange";
 
             try {
-                // Zeitstempel verhindert Cache-Probleme
                 const timestamp = new Date().getTime();
                 const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
                 
-                if (res.status === 429) throw new Error("429"); // Zu oft geklickt
+                if (res.status === 429) throw new Error("429");
                 if (!res.ok) throw new Error("Offline");
 
                 const data = await res.json();
-                
-                // Preisberechnung
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
                 
-                // Erfolg
                 badge.innerText = "Online ●";
-                badge.style.color = "#4cd964"; // Grün
+                badge.style.color = "#4cd964"; 
                 badge.style.borderColor = "#4cd964";
-                
                 render();
             } catch (e) {
-                // Fehlerbehandlung
                 if(e.message === "429") {
                     badge.innerText = "Warte 1min...";
                     badge.style.color = "#ff3b30";
@@ -203,7 +197,7 @@
             }
         }
 
-        // --- ANZEIGE LOGIK ---
+        // --- ANZEIGE ---
         function togglePrivacy() {
             privacyMode = !privacyMode;
             updateEyeIcon();
@@ -213,19 +207,16 @@
         function updateEyeIcon() {
             const btn = document.getElementById('eyeBtn');
             if(privacyMode) {
-                btn.innerText = '👁️'; 
-                btn.style.color = "#888";
+                btn.innerText = '👁️'; btn.style.color = "#888";
             } else {
-                btn.innerText = '🙈';
-                btn.style.color = "#ccc";
+                btn.innerText = '🙈'; btn.style.color = "#ccc";
             }
         }
 
         function fmt(num, isCurrency = true) {
             if (privacyMode) return "••••••";
             return num.toLocaleString('de-DE', {
-                minimumFractionDigits: 2, 
-                maximumFractionDigits: 2
+                minimumFractionDigits: 2, maximumFractionDigits: 2
             }) + (isCurrency ? ' €' : '');
         }
 
@@ -239,11 +230,8 @@
 
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
-                
-                // Wichtig: Wenn Offline (Preis=0), nutze Einkaufspreis als Platzhalter für Wert
                 let val = i.p; 
                 if(prices.gold > 0) val = i.w * currentP;
-                
                 const profit = val - i.p;
                 
                 totalVal += val;
@@ -251,12 +239,6 @@
 
                 const prefix = profit >= 0 ? '+ ' : '- ';
                 const absProfit = Math.abs(profit);
-                
-                // Farbe für Profit-Anzeige (Grau wenn offline)
-                let profitColor = "#777";
-                if(prices.gold > 0) {
-                     // Da wir monochrom sind, nutzen wir Vorzeichen
-                }
 
                 const div = document.createElement('div');
                 div.className = 'list-row';
@@ -281,7 +263,6 @@
                 list.appendChild(div);
             });
 
-            // Summen oben
             document.getElementById('totalValue').innerText = fmt(totalVal);
             document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest);
             
@@ -321,16 +302,24 @@
             render();
         }
 
-        // --- DATEI ---
+        // --- DATEI FIX ---
         function downloadFile() {
             const data = localStorage.getItem('db') || '[]';
+            // Wir nutzen jetzt .txt damit das iPhone es sicher anzeigt
             const date = new Date().toISOString().slice(0,10);
-            const blob = new Blob([data], {type: 'application/json'});
+            
+            // Wichtig: type='text/plain' für maximale Kompatibilität
+            const blob = new Blob([data], {type: 'text/plain'});
             const url = URL.createObjectURL(blob);
+            
             const a = document.createElement('a');
-            a.href = url; a.download = `depot_${date}.json`;
-            document.body.appendChild(a); a.click();
-            document.body.removeChild(a); URL.revokeObjectURL(url);
+            a.href = url;
+            // Wir nennen es .txt, damit das iPhone keine Angst davor hat
+            a.download = `depot_backup_${date}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function uploadFile(input) {
@@ -342,15 +331,17 @@
                     const json = JSON.parse(e.target.result);
                     if(Array.isArray(json)) {
                         localStorage.setItem('db', JSON.stringify(json));
-                        render(); alert('Geladen!');
+                        render(); alert('Erfolgreich geladen!');
+                    } else {
+                        alert('Datei-Format falsch.');
                     }
-                } catch(err) { alert("Dateifehler"); }
+                } catch(err) { alert("Konnte Datei nicht lesen."); }
             };
             reader.readAsText(file);
         }
 
         function del(id) {
-            if(confirm('Eintrag löschen?')) {
+            if(confirm('Löschen?')) {
                 let items = JSON.parse(localStorage.getItem('db')) || [];
                 items = items.filter(i => i.id !== id);
                 localStorage.setItem('db', JSON.stringify(items));
