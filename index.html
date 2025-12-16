@@ -7,15 +7,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* Modernes, dunkles Design */
+        /* Grunddesign: Alles dunkel, Schrift weiß */
         body { 
             background-color: #000000; 
             color: #ffffff; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            padding-bottom: 80px; /* Platz unten */
+            padding-bottom: 80px; 
         }
 
-        /* Der Kopfbereich - jetzt kompakter */
+        /* Header (Kopfbereich) */
         .header-box { 
             background: linear-gradient(180deg, #1c1c1e 0%, #000000 100%);
             border-bottom: 1px solid #333;
@@ -24,47 +24,57 @@
             display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* Die Karten für die Einträge - schlanker */
+        /* Refresh Button Design */
+        .refresh-btn {
+            background: none; border: 1px solid #333; 
+            color: #FFD700; border-radius: 50%; 
+            width: 35px; height: 35px; 
+            font-size: 20px; line-height: 33px; text-align: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .refresh-btn:active { background-color: #333; transform: scale(0.9); }
+
+        /* Karten Design */
         .card { 
             background-color: #1c1c1e; 
             border: 1px solid #2c2c2e; 
             border-radius: 10px; 
-            margin-bottom: 8px; /* Weniger Abstand zwischen den Items */
-            padding: 10px 15px; /* Weniger Innenabstand */
+            margin-bottom: 8px; 
+            padding: 10px 15px; 
         }
         
-        /* Eingabefelder - feiner */
+        /* WICHTIG: Eingabefelder Lesbarkeit repariert */
         .form-control, .form-select { 
             background-color: #2c2c2e !important; 
             border: 1px solid #3a3a3c !important; 
-            color: white !important; 
-            font-size: 14px;
-            height: 38px; /* Flacher */
+            color: #ffffff !important; /* Erzwingt weiße Schrift */
+            font-size: 16px; /* Verhindert Zoom auf iPhone */
+            height: 40px; 
             border-radius: 6px !important;
         }
-        .form-control:focus { box-shadow: none; border-color: #FFD700 !important; }
-
-        /* Der Button */
-        .btn-gold { 
-            background: linear-gradient(90deg, #FFD700, #FDB931); 
-            color: black; 
-            font-weight: 600; 
-            border-radius: 6px; 
-            width: 100%; 
-            padding: 8px; 
-            border: none; 
-            font-size: 15px;
+        
+        /* Platzhalter Farbe (damit man sieht, was man eingeben muss) */
+        ::placeholder { color: #888 !important; opacity: 1; }
+        
+        /* Fokus Rahmen in Gold */
+        .form-control:focus, .form-select:focus { 
+            box-shadow: none; border-color: #FFD700 !important; 
         }
 
-        /* Textfarben */
-        .gold-text { color: #FFD700; }
-        .silver-text { color: #A0A0A0; }
-        .profit-plus { color: #32D74B; font-size: 0.9em; }
-        .profit-minus { color: #FF453A; font-size: 0.9em; }
-        .small-label { font-size: 11px; text-transform: uppercase; color: #666; letter-spacing: 0.5px; }
-        
-        /* Löschen Icon klein */
-        .delete-x { color: #555; font-size: 18px; text-decoration: none; padding: 0 5px; }
+        /* Der OK Button */
+        .btn-gold { 
+            background: linear-gradient(90deg, #FFD700, #FDB931); 
+            color: black; font-weight: 700; border-radius: 6px; 
+            width: 100%; height: 40px; border: none; font-size: 15px;
+        }
+
+        /* Textfarben & Hilfsklassen */
+        .val-gold { color: #FFD700; font-weight: bold; }
+        .val-silver { color: #e0e0e0; font-weight: bold; } /* Helleres Silber für Kontrast */
+        .profit-plus { color: #32D74B; font-size: 0.9em; font-weight: 500; }
+        .profit-minus { color: #FF453A; font-size: 0.9em; font-weight: 500; }
+        .small-label { font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; margin-bottom: 2px; }
+        .delete-x { color: #555; font-size: 20px; padding: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -72,28 +82,34 @@
     <div class="header-box">
         <div>
             <div class="small-label">GESAMTDEPOT</div>
-            <div id="totalValue" style="font-size: 24px; font-weight: 700; color: white;">0,00 €</div>
+            <div id="totalValue" style="font-size: 26px; font-weight: 700; color: white;">0,00 €</div>
         </div>
-        <div class="text-end">
-            <div class="small-label">GEWINN/VERLUST</div>
-            <div id="profitDisplay" style="font-size: 16px;">...</div>
+        <div class="text-end d-flex align-items-center gap-3">
+            <div>
+                <div class="small-label">GEWINN</div>
+                <div id="profitDisplay" style="font-size: 16px;">...</div>
+            </div>
+            <button onclick="manualRefresh()" class="refresh-btn" id="refreshBtn">↻</button>
         </div>
     </div>
 
     <div class="container mt-3">
         
         <div class="card" style="background: #151515; border-color: #333;">
-            <div class="row g-2">
+            <div class="row g-2 align-items-end">
                 <div class="col-4">
+                    <label class="small-label">METALL</label>
                     <select id="type" class="form-select">
                         <option value="gold">Gold</option>
                         <option value="silver">Silber</option>
                     </select>
                 </div>
                 <div class="col-4">
+                    <label class="small-label">GEWICHT</label>
                     <input type="number" id="weight" class="form-control" placeholder="Gramm" inputmode="decimal">
                 </div>
                 <div class="col-4">
+                    <label class="small-label">PREIS (€)</label>
                     <input type="number" id="buyPrice" class="form-control" placeholder="Euro" inputmode="decimal">
                 </div>
                 <div class="col-9">
@@ -105,33 +121,57 @@
             </div>
         </div>
 
-        <div class="small-label mt-4 mb-2 ms-1">DEINE WERTE</div>
+        <div class="d-flex justify-content-between align-items-end mt-4 mb-2 ms-1 me-1">
+            <div class="small-label">DEINE POSITIONEN</div>
+            <div class="small-label" id="priceInfo">Lade Kurse...</div>
+        </div>
+        
         <div id="list"></div>
         
         <div class="text-center mt-5">
-            <small onclick="wipe()" style="color: #444; cursor:pointer;">Liste leeren</small>
+            <small onclick="wipe()" style="color: #444; cursor:pointer; text-decoration: underline;">Liste komplett löschen</small>
         </div>
     </div>
 
     <script>
         let prices = { gold: 0, silver: 0 };
 
+        // Starten und Preise laden
         async function init() {
-            render();
+            render(); // Erstmal gespeicherte Daten anzeigen
+            await fetchPrices(); // Dann neue Preise holen
+        }
+
+        // Preise holen Funktion
+        async function fetchPrices() {
             try {
-                // Preise live holen
+                document.getElementById('priceInfo').innerText = "⏳ Aktualisiere...";
+                
+                // Live Preise abfragen
                 const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur');
                 const data = await res.json();
+                
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
-                render();
+                
+                document.getElementById('priceInfo').innerText = `Gold: ${prices.gold.toFixed(1)}€/g | Silber: ${prices.silver.toFixed(1)}€/g`;
+                render(); // Neu berechnen
+                return true;
             } catch (e) {
-                // Fehler ignorieren, alte Preise nutzen falls vorhanden
+                document.getElementById('priceInfo').innerText = "⚠️ Offline / Fehler";
+                return false;
             }
         }
 
+        // Manueller Refresh Button Klick
+        async function manualRefresh() {
+            const btn = document.getElementById('refreshBtn');
+            btn.innerHTML = '⏳'; // Sanduhr zeigen
+            await fetchPrices();
+            setTimeout(() => { btn.innerHTML = '↻'; }, 500); // Zurück zum Pfeil
+        }
+
         function add() {
-            // Kommas durch Punkte ersetzen für das iPhone
             const wStr = document.getElementById('weight').value.replace(',','.');
             const pStr = document.getElementById('buyPrice').value.replace(',','.');
             
@@ -140,7 +180,7 @@
             const t = document.getElementById('type').value;
             const n = document.getElementById('name').value || (t==='gold'?'Gold Position':'Silber Position');
 
-            if (!w || !p) return;
+            if (!w || !p) return alert("Bitte Gewicht und Preis eingeben");
 
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, n });
@@ -161,34 +201,32 @@
             let totalVal = 0;
             let totalInvest = 0;
 
-            // Liste umdrehen (neueste oben)
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
                 const val = i.w * currentP;
                 const profit = val - i.p;
                 
                 if(prices.gold > 0) totalVal += val;
-                else totalVal += i.p; // Fallback
+                else totalVal += i.p; 
                 
                 totalInvest += i.p;
 
                 const div = document.createElement('div');
                 div.className = 'card';
-                // Layout der einzelnen Zeile (Flexbox)
                 div.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center" style="width: 40%;">
-                            <div style="font-size: 20px; margin-right: 10px;">
+                        <div class="d-flex align-items-center" style="width: 45%;">
+                            <div style="font-size: 22px; margin-right: 12px;">
                                 ${i.t === 'gold' ? '🟡' : '⚪️'}
                             </div>
                             <div style="line-height: 1.2;">
-                                <div style="font-size: 14px; color: white;">${i.w}g <span style="color:#666; font-size:12px;">${i.t}</span></div>
-                                <div style="font-size: 11px; color: #666;">${i.n}</div>
+                                <div style="font-size: 15px; color: white; font-weight:500;">${i.w}g <span style="color:#888; font-size:12px;">${i.t==='gold'?'Au':'Ag'}</span></div>
+                                <div style="font-size: 12px; color: #888;">${i.n}</div>
                             </div>
                         </div>
 
-                        <div class="text-end" style="width: 50%;">
-                            <div style="font-size: 15px; font-weight: 600;">${prices.gold > 0 ? val.toFixed(2) : '?'} €</div>
+                        <div class="text-end" style="width: 45%;">
+                            <div style="font-size: 15px; font-weight: 600; color: white;">${prices.gold > 0 ? val.toFixed(2) : '?'} €</div>
                             <div class="${profit >= 0 ? 'profit-plus' : 'profit-minus'}">
                                 ${profit >= 0 ? '+' : ''}${profit.toFixed(2)} €
                             </div>
@@ -202,7 +240,7 @@
                 list.appendChild(div);
             });
 
-            // Gesamtwerte oben updaten
+            // Gesamtwerte oben
             document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
             
             const totalProfit = totalVal - totalInvest;
@@ -214,7 +252,7 @@
         }
 
         function del(id) {
-            if(!confirm('Eintrag löschen?')) return;
+            if(!confirm('Diesen Eintrag löschen?')) return;
             let items = JSON.parse(localStorage.getItem('db')) || [];
             items = items.filter(i => i.id !== id);
             localStorage.setItem('db', JSON.stringify(items));
@@ -222,7 +260,7 @@
         }
 
         function wipe() {
-            if(confirm('Wirklich ALLES löschen?')) { localStorage.clear(); render(); }
+            if(confirm('Wirklich alles löschen?')) { localStorage.clear(); render(); }
         }
 
         init();
