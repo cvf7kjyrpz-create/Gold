@@ -78,7 +78,7 @@
             border-radius: 4px; width: 100%; padding: 0; cursor: pointer;
         }
 
-        /* 4. LISTE (ULTRA SLIM) */
+        /* 4. LISTE */
         .scrollable-list {
             flex-grow: 1; overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
@@ -86,20 +86,18 @@
         }
         .list-row { 
             border-bottom: 1px solid #151515; 
-            padding: 4px 10px; /* HIER WURDE ES ENGER GEMACHT (War 8px) */
+            padding: 4px 10px; 
             background: #000; 
         }
         .row-main { 
             display: flex; justify-content: space-between; 
             font-size: 12px; color: #eee; 
-            margin-bottom: 0px; /* Kein Abstand mehr nach unten */
-            line-height: 1.2;
+            margin-bottom: 0px; line-height: 1.2;
         }
         .row-sub { 
             display: flex; justify-content: space-between; 
             font-size: 10px; color: #555; 
-            margin-top: 0px; /* Kein Abstand nach oben */
-            line-height: 1.2;
+            margin-top: 0px; line-height: 1.2;
         }
         
         /* Trenner */
@@ -109,23 +107,52 @@
             margin-top: 0;
         }
 
-        /* Helper */
+        /* Buttons & Icons */
         .icon-btn { background: none; border: none; color: #555; font-size: 14px; padding: 0; cursor: pointer; }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: #333; cursor: pointer;}
-        .del-btn { color: #333; font-size: 14px; margin-left: 10px; cursor: pointer; }
+        
+        /* Edit & Delete Buttons */
+        .action-icon { cursor: pointer; margin-left: 8px; font-size: 12px; }
+        .edit-btn { color: #666; } /* Stift Farbe */
+        .del-btn { color: #444; }   /* Kreuz Farbe */
 
         /* Footer */
         .footer-area { text-align: center; padding: 15px 10px; border-top: 1px solid #111; margin-top: 10px; }
         .action-btn { background: #0a0a0a; color: #666; border: 1px solid #222; padding: 6px 12px; border-radius: 4px; font-size: 10px; margin: 2px; }
         .start-btn { background: #111; color: #FFD700; border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 10px; width: 100%; margin-bottom: 10px; display: block; }
         #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; display: none; margin-top: 10px; }
+
+        /* --- MODAL (POPUP) STYLES --- */
+        .modal-overlay {
+            display: none; /* Versteckt am Anfang */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #111; border: 1px solid #333; padding: 20px;
+            width: 85%; max-width: 300px; border-radius: 8px;
+            text-align: center;
+        }
+        .modal-title { color: #fff; font-size: 14px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-input {
+            background: #000; border: 1px solid #333; color: #fff;
+            width: 100%; padding: 8px; margin-bottom: 10px;
+            border-radius: 4px; font-size: 14px;
+        }
+        .modal-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .modal-btn {
+            flex: 1; padding: 10px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer;
+        }
+        .btn-cancel { background: #333; color: #ccc; }
+        .btn-save { background: #FFD700; color: #000; }
+
     </style>
 </head>
 <body>
 
     <div class="fixed-top-area">
         <div class="header-box">
-            
             <div class="top-meta-bar">
                 <div onclick="fetchPrices()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
                     <div id="statusDot" class="status-dot"></div>
@@ -148,7 +175,6 @@
                         <div id="totalInvest" class="dash-value-sub">••••</div>
                     </div>
                 </div>
-
                 <div class="dash-group" style="text-align:right;">
                     <div>
                         <span class="text-label">Gewinn / ROI</span>
@@ -171,7 +197,6 @@
                     <span style="color:#aaa;">●</span>
                 </div>
             </div>
-
         </div>
 
         <div class="input-container">
@@ -215,7 +240,28 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 17.0 (Ultra Slim)</span>
+            <span style="font-size:8px; color:#222;">V 18.0 (Edit)</span>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title">Eintrag Bearbeiten</div>
+            <input type="hidden" id="editId">
+            
+            <select id="editType" class="modal-input">
+                <option value="gold">Gold (Au)</option>
+                <option value="silver">Silber (Ag)</option>
+            </select>
+            
+            <input type="number" id="editWeight" class="modal-input" placeholder="Gewicht (g)" inputmode="decimal">
+            <input type="number" id="editPrice" class="modal-input" placeholder="Einkaufspreis (€)" inputmode="decimal">
+            <input type="text" id="editName" class="modal-input" placeholder="Beschreibung">
+
+            <div class="modal-btns">
+                <button onclick="closeModal()" class="modal-btn btn-cancel">Abbruch</button>
+                <button onclick="saveEdit()" class="modal-btn btn-save">Speichern</button>
+            </div>
         </div>
     </div>
 
@@ -253,7 +299,6 @@
 
         function togglePrivacy() { privacyMode = !privacyMode; updateEyeIcon(); render(); }
         function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#666" : "#aaa"; }
-        
         function fmt(num, suffix = '') {
             if (privacyMode) return "••••";
             return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
@@ -283,10 +328,46 @@
             };
         }
 
+        // --- EDIT FUNKTIONEN ---
+        function edit(id) {
+            const items = JSON.parse(localStorage.getItem('db')) || [];
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+
+            document.getElementById('editId').value = id;
+            document.getElementById('editType').value = item.t;
+            document.getElementById('editWeight').value = item.w;
+            document.getElementById('editPrice').value = item.p;
+            document.getElementById('editName').value = item.name;
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveEdit() {
+            const id = parseInt(document.getElementById('editId').value);
+            const t = document.getElementById('editType').value;
+            const w = parseFloat(document.getElementById('editWeight').value.replace(',', '.'));
+            const p = parseFloat(document.getElementById('editPrice').value.replace(',', '.'));
+            const name = document.getElementById('editName').value;
+
+            if(!w || !p) { alert("Bitte Werte eingeben"); return; }
+
+            let items = JSON.parse(localStorage.getItem('db')) || [];
+            const index = items.findIndex(i => i.id === id);
+            if(index > -1) {
+                items[index] = { id, t, w, p, name };
+                localStorage.setItem('db', JSON.stringify(items));
+                render();
+                closeModal();
+            }
+        }
+
         function render() {
             let items = JSON.parse(localStorage.getItem('db')) || [];
-            
-            // SORTIERUNG
             items.sort((a, b) => {
                 if (a.t === b.t) return b.id - a.id;
                 return a.t === 'gold' ? -1 : 1;
@@ -298,12 +379,10 @@
             let totalVal = 0; let totalInvest = 0;
             let sumGoldW = 0; let countGold = 0;
             let sumSilverW = 0; let countSilver = 0;
-
             let lastType = null;
 
             items.forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
-                
                 if (i.t === 'gold') { sumGoldW += i.w; countGold++; } 
                 else { sumSilverW += i.w; countSilver++; }
 
@@ -312,13 +391,11 @@
                 totalVal += val;
                 totalInvest += i.p;
 
-                // Profit
                 const itemProfit = val - i.p;
                 const itemPrefix = itemProfit >= 0 ? '+' : '';
                 const itemColor = itemProfit >= 0 ? 'text-green' : 'text-red';
                 const itemProfitText = itemPrefix + itemProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-                // TRENNER
                 if(i.t !== lastType) {
                     const divSep = document.createElement('div');
                     divSep.className = 'group-divider';
@@ -343,7 +420,8 @@
                              <span class="${!privacyMode && prices.gold > 0 ? itemColor : 'text-neutral'}" style="margin-right:10px;">
                                 ${!privacyMode && prices.gold > 0 ? itemProfitText : ''}
                             </span>
-                            <span onclick="del(${i.id})" class="del-btn">×</span>
+                            <span onclick="edit(${i.id})" class="action-icon edit-btn">✎</span>
+                            <span onclick="del(${i.id})" class="action-icon del-btn">×</span>
                         </span>
                     </div>
                 `;
@@ -354,7 +432,6 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
             
-            // Gewinn & ROI
             const profitEuro = totalVal - totalInvest;
             const pBox = document.getElementById('profitBlock');
             if(privacyMode) {
@@ -372,7 +449,6 @@
                 } else { pBox.innerHTML = "Offline"; pBox.className = "dash-value-main text-neutral"; }
             }
 
-            // Trend
             if(prices.gold > 0 && !privacyMode && baseline.active) {
                 const trend = calcPerf(totalVal, baseline.totalVal);
                 const tEl = document.getElementById('trendPerf');
@@ -383,11 +459,9 @@
                 tEl.className = "dash-value-sub text-neutral";
             }
 
-            // Spot Ticker
             document.getElementById('spotGold').innerText = prices.gold > 0 ? Math.round(prices.gold)+'€' : '-';
             document.getElementById('spotSilver').innerText = prices.silver > 0 ? prices.silver.toFixed(2)+'€' : '-';
             
-            // Asset Leiste
             if (privacyMode) {
                 document.getElementById('goldInfo').innerText = "Gold: ••";
                 document.getElementById('silverInfo').innerText = "Silber: ••";
