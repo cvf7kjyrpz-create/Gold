@@ -3,259 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mein Depot</title>
+    <title>Depot Mini</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* ERZWINGEN DES DARK MODES */
-        html, body {
-            background-color: #000000 !important;
-            color: #ffffff !important;
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            padding-bottom: 100px;
-            min-height: 100vh;
+        /* 1. GRUNDGERÜST: SCHWARZ & WEISS ERZWINGEN */
+        body { 
+            background-color: #000000 !important; 
+            color: #ffffff !important; 
+            font-family: -apple-system, sans-serif; 
+            font-size: 12px; /* Generell kleinere Schrift */
+            padding-bottom: 50px;
         }
 
-        /* HEADER BOX */
+        /* 2. HEADER: EXTREM SCHMAL */
         .header-box { 
-            background: #111111;
+            background: #111; 
             border-bottom: 1px solid #333;
-            padding: 20px; 
-            position: sticky; top: 0; z-index: 1000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            padding: 8px 12px; /* Wenig Abstand */
+            position: sticky; top: 0; z-index: 100;
         }
+        .header-row { display: flex; justify-content: space-between; align-items: center; }
+        .total-val { font-size: 18px; font-weight: bold; color: white; }
+        .sub-val { font-size: 11px; color: #999; }
+        .profit-val { font-size: 12px; font-weight: bold; }
 
-        /* CARD DESIGN (Die Boxen) */
-        .card { 
-            background-color: #1c1c1e !important; 
-            border: 1px solid #333 !important; 
-            border-radius: 12px; 
-            margin-bottom: 10px; 
-            padding: 12px; 
+        /* 3. EINGABE: KOMPAKT */
+        .input-card { 
+            background: #1a1a1a; 
+            border-bottom: 1px solid #333; 
+            padding: 10px; 
         }
-
-        /* EINGABEFELDER (Weißer Text auf dunklem Grund) */
-        input, select { 
-            background-color: #2c2c2e !important; 
+        /* HIER IST DER FIX FÜR DUNKLE SCHRIFT: */
+        .form-control, .form-select { 
+            background-color: #2a2a2a !important; 
             border: 1px solid #444 !important; 
-            color: #fff !important; 
-            border-radius: 8px !important;
-            height: 45px !important;
+            color: #ffffff !important; /* Weiß erzwingen */
+            -webkit-text-fill-color: #ffffff !important; /* iPhone Fix */
+            font-size: 12px !important; 
+            height: 30px !important; /* Sehr flach */
+            padding: 2px 5px !important;
+            border-radius: 4px !important;
         }
-        input::placeholder { color: #888 !important; }
-        input:focus, select:focus { border-color: #FFD700 !important; box-shadow: none !important; }
-
-        /* BUTTONS */
-        .btn-gold { 
-            background: #FFD700; color: #000; font-weight: 800; 
-            border: none; border-radius: 8px; width: 100%; height: 45px;
-        }
-        .refresh-btn {
-            font-size: 24px; color: #FFD700; background: none; border: none; padding: 0 10px;
-        }
-
-        /* TEXT STYLES */
-        .label-small { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .val-big { font-size: 28px; font-weight: 700; color: white; margin: 5px 0; }
-        .val-sub { font-size: 14px; color: #aaa; }
+        ::placeholder { color: #888 !important; opacity: 1; }
         
-        .profit-plus { color: #4cd964; font-weight: bold; }
-        .profit-minus { color: #ff3b30; font-weight: bold; }
+        .btn-add { 
+            background: #FFD700; color: black; border: none; 
+            height: 30px; font-size: 12px; font-weight: bold; 
+            width: 100%; border-radius: 4px; 
+        }
         
-        .item-price-label { font-size: 12px; color: #666; margin-top: 4px; }
+        /* 4. LISTE: SCHMAL */
+        .list-item { 
+            border-bottom: 1px solid #222; 
+            padding: 6px 10px; 
+            background: black;
+        }
+        .item-top { display: flex; justify-content: space-between; font-size: 13px; color: white; }
+        .item-sub { display: flex; justify-content: space-between; font-size: 10px; color: #777; margin-top: 1px; }
+        
+        /* HELFER */
+        .c-gold { color: #FFD700; }
+        .c-silver { color: #ccc; }
+        .p-plus { color: #4cd964; }
+        .p-minus { color: #ff3b30; }
+        .del-btn { color: #444; font-size: 14px; margin-left: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="header-box">
-        <div class="d-flex justify-content-between align-items-start">
+        <div class="header-row">
             <div>
-                <div class="label-small">AKTUELLER WERT</div>
-                <div id="totalValue" class="val-big">0,00 €</div>
-                <div id="totalInvest" class="val-sub">Investiert: 0,00 €</div>
+                <span class="total-val" id="totalValue">0 €</span>
+                <span class="sub-val" id="totalInvest"> (Invest: 0 €)</span>
             </div>
-            <div class="text-end">
-                <button onclick="manualRefresh()" class="refresh-btn" id="refreshBtn">↻</button>
-                <div id="profitDisplay" style="margin-top:5px; font-size:15px;">...</div>
+            <div style="text-align: right;">
+                <div id="profitDisplay" class="profit-val">...</div>
+                <small onclick="fetchPrices()" style="color:#FFD700; font-size:10px; cursor:pointer;">↻ Update</small>
             </div>
-        </div>
-        <div id="statusMsg" style="font-size:11px; color:#555; text-align:center; margin-top:10px;">
-            Preise werden geladen...
         </div>
     </div>
 
-    <div class="container mt-3">
-        
-        <div class="card p-3">
-            <h6 style="color:#888; font-size:12px; margin-bottom:10px;">NEUER EINTRAG</h6>
-            <div class="row g-2">
-                <div class="col-6">
-                    <select id="type" class="form-select">
-                        <option value="gold">Gold</option>
-                        <option value="silver">Silber</option>
-                    </select>
-                </div>
-                <div class="col-6">
-                    <input type="number" id="weight" class="form-control" placeholder="Gramm (g)" inputmode="decimal">
-                </div>
-                <div class="col-6">
-                    <input type="number" id="buyPrice" class="form-control" placeholder="Kaufpreis (€)" inputmode="decimal">
-                </div>
-                <div class="col-6">
-                    <input type="text" id="name" class="form-control" placeholder="Name (opt.)">
-                </div>
-                <div class="col-12 mt-2">
-                    <button onclick="add()" class="btn-gold">HINZUFÜGEN</button>
-                </div>
+    <div class="input-card">
+        <div class="row g-1"> <div class="col-3">
+                <select id="type" class="form-select">
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silber</option>
+                </select>
+            </div>
+            <div class="col-3">
+                <input type="number" id="weight" class="form-control" placeholder="Gramm" inputmode="decimal">
+            </div>
+            <div class="col-3">
+                <input type="number" id="buyPrice" class="form-control" placeholder="Preis €" inputmode="decimal">
+            </div>
+            <div class="col-3">
+                <button onclick="add()" class="btn-add">OK</button>
+            </div>
+            <div class="col-12 mt-1">
+                <input type="text" id="name" class="form-control" placeholder="Beschreibung (z.B. Barren)">
             </div>
         </div>
+    </div>
 
-        <div class="label-small mt-4 mb-2 ms-2">DEIN BESTAND</div>
-        <div id="list"></div>
-        
-        <div class="text-center mt-5 mb-5">
-            <small onclick="wipe()" style="color:#444; text-decoration:underline; cursor:pointer;">Alles löschen</small>
-        </div>
+    <div id="list"></div>
+    
+    <div class="text-center mt-3">
+        <span onclick="wipe()" style="font-size:10px; color:#444; text-decoration:underline;">Reset</span>
     </div>
 
     <script>
         let prices = { gold: 0, silver: 0 };
 
-        // Start
-        window.onload = function() {
+        async function init() {
             render();
-            fetchPrices();
-        };
+            await fetchPrices();
+        }
 
-        // PREISE LADEN
         async function fetchPrices() {
-            const status = document.getElementById('statusMsg');
-            const btn = document.getElementById('refreshBtn');
-            
+            const pDisplay = document.getElementById('profitDisplay');
+            pDisplay.innerText = "⏳";
             try {
-                btn.style.transform = "rotate(180deg)";
-                status.innerText = "Lade Live-Kurse...";
-                
-                // Wir nutzen CoinGecko
-                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&include_last_updated_at=true');
-                
-                if (!res.ok) throw new Error("Fehler");
-
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur');
                 const data = await res.json();
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
-                
-                status.innerText = `Gold: ${prices.gold.toFixed(2)}€/g | Silber: ${prices.silver.toFixed(2)}€/g`;
-                status.style.color = "#FFD700";
-                
-                render(); 
+                render();
             } catch (e) {
-                status.innerText = "Preis-Update fehlgeschlagen (Internet?)";
-                status.style.color = "#FF453A";
-            } finally {
-                btn.style.transform = "none";
+                pDisplay.innerText = "Offline";
             }
         }
 
-        // MANUELLER REFRESH
-        function manualRefresh() {
-            fetchPrices();
-        }
-
-        // HINZUFÜGEN
         function add() {
-            // Komma zu Punkt Konvertierung für iPhone Tastatur
             let wVal = document.getElementById('weight').value.replace(',', '.');
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
-            
             const w = parseFloat(wVal);
             const p = parseFloat(pVal);
             const t = document.getElementById('type').value;
             const n = document.getElementById('name').value || (t==='gold'?'Gold':'Silber');
 
-            if (!w || !p) { alert("Bitte Gewicht und Preis eingeben."); return; }
+            if (!w || !p) return;
 
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, n });
             localStorage.setItem('db', JSON.stringify(items));
             
-            // Felder leeren
             document.getElementById('weight').value = '';
             document.getElementById('buyPrice').value = '';
             document.getElementById('name').value = '';
-            
             render();
         }
 
-        // ANZEIGEN
         function render() {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const list = document.getElementById('list');
             list.innerHTML = '';
             
-            let totalVal = 0;
+            let totalVal = 0; 
             let totalInvest = 0;
 
-            // Neueste zuerst
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
-                
-                // Falls Preise 0 sind (offline), nimm Einkaufspreis als Platzhalter für Wert
-                let val = 0;
-                if(prices.gold > 0) {
-                    val = i.w * currentP;
-                } else {
-                    val = i.p; // Fallback damit nicht 0 steht
-                }
-
+                let val = (prices.gold > 0) ? (i.w * currentP) : i.p;
                 const profit = val - i.p;
                 
                 totalVal += val;
                 totalInvest += i.p;
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <div style="font-size:22px; margin-right:12px;">${i.t==='gold'?'🟡':'⚪️'}</div>
-                            <div>
-                                <div style="font-weight:bold; font-size:16px;">${i.w}g <span style="color:#888; font-weight:normal; font-size:12px;">${i.n}</span></div>
-                                <div class="item-price-label">Gekauft für: ${i.p.toFixed(2)} €</div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-end">
-                            <div style="font-weight:bold; font-size:16px;">${prices.gold > 0 ? val.toFixed(2) : '?'} €</div>
-                            <div style="font-size:13px;" class="${profit>=0 ? 'profit-plus':'profit-minus'}">
-                                ${profit>=0?'+':''}${profit.toFixed(2)} €
-                            </div>
-                        </div>
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.innerHTML = `
+                    <div class="item-top">
+                        <span>
+                            <span class="${i.t==='gold'?'c-gold':'c-silver'}">●</span> 
+                            <b>${i.w}g</b> ${i.name}
+                        </span>
+                        <span>${prices.gold > 0 ? val.toFixed(2) : '?'} € <span onclick="del(${i.id})" class="del-btn">×</span></span>
                     </div>
-                    <div class="text-end mt-1">
-                        <span onclick="del(${i.id})" style="color:#444; font-size:18px; padding:5px; cursor:pointer;">&times;</span>
+                    <div class="item-sub">
+                        <span>EK: ${i.p.toFixed(2)} €</span>
+                        <span class="${profit>=0?'p-plus':'p-minus'}">
+                            ${profit>=0?'+':''}${profit.toFixed(2)} €
+                        </span>
                     </div>
                 `;
-                list.appendChild(card);
+                list.appendChild(div);
             });
 
-            // Header Werte
-            document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
-            document.getElementById('totalInvest').innerText = 'Investiert: ' + totalInvest.toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
+            // Formatierung Zahlen
+            const fmt = (n) => n.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-            const totalProfit = totalVal - totalInvest;
-            const profElem = document.getElementById('profitDisplay');
+            document.getElementById('totalValue').innerText = fmt(totalVal) + ' €';
+            document.getElementById('totalInvest').innerText = '(EK: ' + fmt(totalInvest) + ')';
             
+            const totalProfit = totalVal - totalInvest;
             if(prices.gold > 0) {
-                profElem.innerHTML = `<span class="${totalProfit>=0?'profit-plus':'profit-minus'}">Gewinn: ${totalProfit>=0?'+':''}${totalProfit.toFixed(2)} €</span>`;
-            } else {
-                profElem.innerText = "Offline";
+                const pElem = document.getElementById('profitDisplay');
+                pElem.innerText = (totalProfit>=0?'+':'') + fmt(totalProfit) + ' €';
+                pElem.className = "profit-val " + (totalProfit>=0?'p-plus':'p-minus');
             }
         }
 
-        // LÖSCHEN
         function del(id) {
-            if(confirm("Eintrag löschen?")) {
+            if(confirm('Löschen?')) {
                 let items = JSON.parse(localStorage.getItem('db')) || [];
                 items = items.filter(i => i.id !== id);
                 localStorage.setItem('db', JSON.stringify(items));
@@ -264,11 +215,10 @@
         }
 
         function wipe() {
-            if(confirm("ALLES löschen?")) {
-                localStorage.clear();
-                render();
-            }
+            if(confirm('Alles löschen?')) { localStorage.clear(); render(); }
         }
+
+        init();
     </script>
 </body>
 </html>
