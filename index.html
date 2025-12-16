@@ -11,9 +11,9 @@
         html, body {
             height: 100%; margin: 0; padding: 0;
             background-color: #000000;
-            color: #ffffff; /* Generell weißer */
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            font-size: 11px; /* Etwas kleiner für mehr Platz */
+            color: #ffffff;
+            font-family: -apple-system, sans-serif;
+            font-size: 11px;
             overflow: hidden; 
             display: flex; flex-direction: column;
         }
@@ -22,26 +22,31 @@
         .text-green { color: #32d74b !important; font-weight: 700; }
         .text-red { color: #ff453a !important; font-weight: 700; }
         .text-neutral { color: #888 !important; }
-        .text-white { color: #ffffff !important; }
-
-        /* 2. HEADER: SUPER KOMPAKT */
+        
+        /* 2. HEADER */
         .fixed-top-area {
             flex-shrink: 0; background: #000; z-index: 100;
             border-bottom: 1px solid #333;
         }
 
         .header-box { 
-            padding: 8px 12px; /* Wenig Innenabstand */
+            padding: 8px 12px; 
             background: #050505;
         }
 
-        /* Obere Leiste (Status + Auge) */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+        /* Top Bar: Status + Kurse + Auge */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
         
-        /* Der riesige Euro Wert */
+        /* Neue Zeile für Spot Preise */
+        .spot-price-row {
+            font-size: 10px; color: #666; text-align: center; margin-bottom: 2px;
+            border-bottom: 1px solid #1a1a1a; padding-bottom: 4px;
+        }
+
+        /* Großer Wert */
         .big-value { 
             font-size: 26px; font-weight: 800; color: #fff; 
-            letter-spacing: -0.5px; line-height: 1.1; margin: 0;
+            letter-spacing: -0.5px; line-height: 1.1; margin-top: 5px;
         }
 
         /* Euro Gewinn Zeile */
@@ -49,7 +54,7 @@
             font-size: 12px; margin-bottom: 8px; color: #aaa;
         }
 
-        /* Die zwei Prozent-Boxen (Gesamt vs Trend) */
+        /* Prozent Boxen */
         .dual-perf-container {
             display: flex; gap: 8px; margin-bottom: 8px;
         }
@@ -60,23 +65,19 @@
         .perf-label { font-size: 9px; color: #666; text-transform: uppercase; display: block; }
         .perf-val { font-size: 13px; font-weight: bold; }
 
-        /* Gold/Silber Details (ganz unten im Header) */
+        /* Details */
         .mini-detail-row {
             display: flex; justify-content: space-between; 
             font-size: 10px; color: #777; border-top: 1px solid #1a1a1a; padding-top: 4px;
         }
 
-        /* 3. EINGABE (Sehr schmal) */
-        .input-container {
-            padding: 6px; background: #080808; border-top: 1px solid #1a1a1a;
-        }
+        /* 3. EINGABE */
+        .input-container { padding: 6px; background: #080808; border-top: 1px solid #1a1a1a; }
         .input-row { display: flex; gap: 4px; align-items: center; }
         
         .mini-input { 
-            background-color: #1a1a1a !important; 
-            border: 1px solid #333 !important; 
-            color: #fff !important; 
-            font-size: 11px !important; height: 28px !important; /* Flacher */
+            background-color: #1a1a1a !important; border: 1px solid #333 !important; 
+            color: #fff !important; font-size: 11px !important; height: 28px !important;
             padding: 0 5px !important; border-radius: 4px !important; width: 100%;
         }
         .btn-add { 
@@ -85,33 +86,27 @@
             border-radius: 4px; width: 100%; padding: 0;
         }
 
-        /* 4. LISTE (Weiß & Schmal) */
+        /* 4. LISTE */
         .scrollable-list {
             flex-grow: 1; overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
             background: #000; padding-bottom: 40px;
         }
+        .list-row { border-bottom: 1px solid #151515; padding: 6px 10px; background: #000; }
         
-        .list-row { 
-            border-bottom: 1px solid #151515; 
-            padding: 5px 10px; /* Extrem flache Zeilen */
-            background: #000; 
-        }
+        /* Weiße Schrift oben */
+        .row-top { display: flex; justify-content: space-between; font-size: 13px; color: #ffffff; font-weight: 500; }
         
-        /* Die Schrift in der Liste - Hellweiß */
-        .row-top { 
-            display: flex; justify-content: space-between; 
-            font-size: 13px; color: #ffffff; font-weight: 500; /* WICHTIG: Weiß */
-        }
+        /* EK und Gewinn unten */
         .row-bot { 
-            display: flex; justify-content: space-between; 
-            font-size: 10px; color: #888; margin-top: 1px; 
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 10px; color: #888; margin-top: 2px; 
         }
 
         /* Buttons & Icons */
         .icon-btn { background: none; border: none; color: #666; font-size: 16px; padding: 0; cursor: pointer; }
-        .status-badge { font-size: 9px; color: #555; border: 1px solid #222; padding: 1px 5px; border-radius: 3px; }
-        .del-btn { color: #444; font-size: 14px; margin-left: 10px; cursor: pointer; }
+        .status-badge { font-size: 9px; color: #555; border: 1px solid #222; padding: 1px 5px; border-radius: 3px; cursor: pointer;}
+        .del-btn { color: #444; font-size: 14px; margin-left: 10px; cursor: pointer; padding: 0 5px;}
 
         /* Footer */
         .footer-area { text-align: center; padding: 20px 10px; border-top: 1px solid #111; margin-top: 20px; }
@@ -128,6 +123,10 @@
                 <span id="statusBadge" class="status-badge" onclick="fetchPrices()">Verbinden...</span>
                 <button onclick="togglePrivacy()" class="icon-btn" id="eyeBtn">👁️</button>
             </div>
+
+            <div class="spot-price-row">
+                Kurs (1g): <span id="spotGold" style="color:#FFD700;">-</span> | <span id="spotSilver" style="color:#ccc;">-</span>
+            </div>
             
             <div id="totalValue" class="big-value">••••••</div>
 
@@ -142,7 +141,7 @@
                     <span id="roiPerf" class="perf-val">0.00%</span>
                 </div>
                 <div class="perf-box">
-                    <span class="perf-label">Trend (Heute)</span>
+                    <span class="perf-label">Trend (Reset)</span>
                     <span id="trendPerf" class="perf-val">0.00%</span>
                 </div>
             </div>
@@ -182,7 +181,6 @@
         
         <div class="footer-area">
             <button onclick="setBaseline()" class="start-btn">⏱️ Trend-Startpunkt setzen (0%)</button>
-            
             <p style="color:#444; font-size:9px; margin-top:15px; margin-bottom:5px;">BACKUP</p>
             <button onclick="copyToClipboard()" class="action-btn">Kopieren</button>
             <button onclick="pasteFromClipboard()" class="action-btn">Einfügen</button>
@@ -195,6 +193,8 @@
 
             <br>
             <span onclick="wipe()" style="font-size:10px; color:#333; cursor:pointer;">Reset</span>
+            <br>
+            <span style="font-size:9px; color:#333;">V 13.0 (Auto-Refresh)</span>
         </div>
     </div>
 
@@ -209,6 +209,13 @@
             updateEyeIcon();
             render();
             await fetchPrices();
+
+            // NEU: Auto-Refresh wenn App geöffnet wird
+            document.addEventListener("visibilitychange", () => {
+                if (document.visibilityState === "visible") {
+                    fetchPrices();
+                }
+            });
         }
 
         async function fetchPrices() {
@@ -221,6 +228,7 @@
                 const data = await res.json();
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
+                
                 badge.innerText = "Online ●"; badge.style.color = "#4cd964"; badge.style.borderColor = "#4cd964";
                 render();
             } catch (e) {
@@ -243,14 +251,13 @@
             items.forEach(i => {
                 const p = i.t === 'gold' ? prices.gold : prices.silver;
                 if(prices.gold > 0) currentTotal += i.w * p;
-                else currentTotal += i.p; // Fallback
+                else currentTotal += i.p; 
             });
             baseline = { active: true, totalVal: currentTotal };
             localStorage.setItem('baseline', JSON.stringify(baseline));
             render();
         }
 
-        // Prozent-Rechner
         function calcPerf(current, base) {
             if(base === 0) return { text: "0.00%", class: "text-neutral" };
             const diff = current - base;
@@ -270,8 +277,6 @@
             let totalVal = 0; let totalInvest = 0;
             let sumGoldW = 0; let sumSilverW = 0;
 
-            // Details für Gold/Silber Trend (Startpunkte müssten theoretisch auch einzeln gespeichert werden für 100% Genauigkeit, hier vereinfacht auf Gesamt)
-            
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
                 if (i.t === 'gold') sumGoldW += i.w; else sumSilverW += i.w;
@@ -281,6 +286,12 @@
                 
                 totalVal += val;
                 totalInvest += i.p;
+
+                // Einzel-Gewinn berechnen
+                const itemProfit = val - i.p;
+                const itemPrefix = itemProfit >= 0 ? '+' : '';
+                const itemColor = itemProfit >= 0 ? 'text-green' : 'text-red';
+                const itemProfitText = itemPrefix + itemProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '€';
 
                 // LISTE RENDERN
                 const div = document.createElement('div');
@@ -294,7 +305,12 @@
                         <span style="color:#ffffff;">${fmt(val, ' €')}</span>
                     </div>
                     <div class="row-bot">
-                        <span>EK: ${fmt(i.p, ' €')}</span>
+                        <span>
+                            EK: ${fmt(i.p, ' €')} 
+                            <span style="margin-left:8px; font-weight:bold;" class="${!privacyMode && prices.gold > 0 ? itemColor : 'text-neutral'}">
+                                ${!privacyMode && prices.gold > 0 ? itemProfitText : ''}
+                            </span>
+                        </span>
                         <span onclick="del(${i.id})" class="del-btn">×</span>
                     </div>
                 `;
@@ -305,6 +321,10 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest, ' €');
             
+            // SPOT PREISE (Zeigen wir immer an, ist kein Geheimnis)
+            document.getElementById('spotGold').innerText = prices.gold > 0 ? prices.gold.toLocaleString('de-DE', {maximumFractionDigits:2}) + '€' : '-';
+            document.getElementById('spotSilver').innerText = prices.silver > 0 ? prices.silver.toLocaleString('de-DE', {maximumFractionDigits:2}) + '€' : '-';
+
             // Gewinn in Euro
             const profitEuro = totalVal - totalInvest;
             const pElem = document.getElementById('totalProfitEuro');
@@ -316,14 +336,12 @@
                 pElem.className = profitEuro >= 0 ? "text-green" : "text-red";
             }
 
-            // 2. PROZENT BOXEN (Das wichtigste Feature)
+            // 2. PROZENT BOXEN
             if(prices.gold > 0 && !privacyMode) {
-                // A) GESAMT ROI (Allgemein)
                 const roi = calcPerf(totalVal, totalInvest);
                 const roiEl = document.getElementById('roiPerf');
                 roiEl.innerText = roi.text; roiEl.className = "perf-val " + roi.class;
 
-                // B) TREND (Seit Reset)
                 if(baseline.active) {
                     const trend = calcPerf(totalVal, baseline.totalVal);
                     const trendEl = document.getElementById('trendPerf');
@@ -335,7 +353,6 @@
             } else {
                 document.getElementById('roiPerf').innerText = privacyMode ? "••••" : "Offline";
                 document.getElementById('trendPerf').innerText = privacyMode ? "••••" : "Offline";
-                // Reset colors
                 document.getElementById('roiPerf').className = "perf-val text-neutral";
                 document.getElementById('trendPerf').className = "perf-val text-neutral";
             }
@@ -372,8 +389,7 @@
             try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert("Geladen!"); } } catch(e) { alert("Fehler"); }
         }
         function uploadFile(input) {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader(); reader.onload = function(e) { loadFromText(e.target.result); }; reader.readAsText(file);
+            const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { loadFromText(e.target.result); }; reader.readAsText(file);
         }
         function del(id) { if(confirm('Löschen?')) { let items = JSON.parse(localStorage.getItem('db')) || []; items = items.filter(i => i.id !== id); localStorage.setItem('db', JSON.stringify(items)); render(); } }
         function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
