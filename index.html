@@ -36,7 +36,6 @@
 
         .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #666; }
         
-        /* Buttons oben */
         .icon-btn {
             background: none; border: 1px solid #333; color: #888;
             border-radius: 6px; padding: 2px 8px; font-size: 14px;
@@ -143,11 +142,13 @@
         <div class="footer-area">
             <button onclick="downloadFile()" class="file-btn">↓ Sichern</button>
             
-            <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
+            <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
             
             <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
             <br><br>
             <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer;">Reset</span>
+            <br>
+            <span style="font-size:9px; color:#333;">VERSION 5.0 (Cache Check)</span>
         </div>
     </div>
 
