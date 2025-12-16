@@ -2,51 +2,41 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Gold Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Gold</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAQKADAAQAAAABAAAAQAAAAABGu3UZAAAE3ElEQVR4Ae2bTWgcVRTH/29mdrP52GZjN9G0RVoFqVYQIypWwQ+0iFpR8OJB8CDiQfGg4MXjXjyJePYgePCg6EHEi0IRq0IREQsVLVhNam3zsdn9mJ1548xkd9Kk2Z1JqCnzwMvsZOb//znv3vfu7ISQOqS13g/gQwA7AKwD0ArgFQA/ArgM4Jqk1L+uL4W2B1BKvQDgKwD7a687D+B7Sqk/zT62h6CUugbgnMntvO0EpZRXa822B7DW/xXAtL0u5o0vKKWeNdvYHoBS6gCA381O5u0DKKVOmW1sD6CW/z2AzWYn8/YASqnDZhvbA6jlbwE4bHYybw+glNpptrE9gFr+rwCOmp3M2wMopfabbeJWA6WUJ4T4W1LqvNlI3kKIYyL2+4+5B1BKHRFCnJCU+tHspzFCiKMi9vuXuQdQSn1C05+UlPrazGgZQogPRuz3T3MPoJT6jKb/lqTUP82MliGEeH/Efv8w9wBKqc9p+p+SlPrLzGgZQoj3Ruz393MPoJT6gqb/ISn1j5nRMoQQ74nY7+/mHkAp9RVN/31S6h8zo2UIIXrE/qZ/LvcASqlvafrvklL/MDNahhCin9jf9HfMPYBS6jua/tuk1F/NjJYhhOgT+5v+drkHUEp9T9N/k5T6s5nRMoQQvWJ/018v9wBKqe9p+q+TUjdN+0sRQqT19/wTzD2AUuoHmvaLpNS1+c8yv4cQIqX/kH+cuQdQSv1I036elLo6/1nm9xBCpPRv8o8x9wBKqV9o2s+RUtfMPJchhEjpX+cfZe4BlFK/0rSfJaWumvksQwiR0r/KP8LcAyilfqNpP0NKXTHzWYYQIqV/mX+YuQdQSv1O036GlLpi5rMMIURK/yL/MHMPoJT6g6b9NCl1xcxnGUIIl/4F/kHmHsA07SdJqStmPssQQrj0z/MPMvcApmk/TkpdNfNZhhDCpX+ef5C5BzBN+1FS6pqZzzKEOCH9s/yDzD2AadqPkVLXzHyWIcQJ6Z/lH2TuAUzTfoSUumbmswwhTkj/LP8gcw9gmvZDpNQ1M59lCHFC+mf5B5l7ANO0HySlfjfzWYYQJ6R/ln+QuQcwTfsBUuqa2c8yhDgh/bP8g8w9gGna95NSN8x+liHECemf5R9k7gFM076PlLpp9rMMIU5I/yz/IHMPYJr2vaTULbOfZQhxQvpn+QeZewDTtO8hpW6Z/SxDiBPSP8s/yNwDmKZ9Dyl12+xnGUJ0SP8s/yBzD2Ca9t2k1O/mP8u8HiHEiPTP8o8z9wCmad9FSv1k/rPM6xFCjEj/LP84cw9gmvadpNQf5j/LvB4hxIj0z/KPM/cApmnfQUr9af6zzOsRQoxI/yz/OHMPYJr27aTU1fnPMq9HCDEi/bP848w9gGnat5FS1+Y/y7weIcSI9M/yjzP3AKZp30JKXZ//LPN6hBAj0j/LP87cA5imfTNV/675zzKvRwixR/pn+ceZewDTtG8kpb43/1nm9Qgh9kj/LP84cw9gmnZISn1v/rPM6xFC7JH+Wf5x5h7A2vQ1SalfzX+WeT1CiD3SP8s/7v8fQCn1E4A3zE7m7QOUUj+bbWwPoJR6C8Bxs5N5ewCl1FtmG9sDKKXeAPC72cm8PYBS6g2zje0BlFL7AJw3O5m3XqWUV832/wH6L4B91s4U2gAAAABJRU5ErkJggg==">
-
     <style>
-        /* iPhone Dark Mode Optimierung */
-        body { background-color: #000000; color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding-top: 50px; padding-bottom: 80px; }
-        .card { background-color: #1c1c1e; border: none; border-radius: 12px; margin-bottom: 12px; }
+        body { background-color: #000000; color: #ffffff; font-family: sans-serif; padding-top: 20px; padding-bottom: 50px; }
+        .card { background-color: #1c1c1e; border: 1px solid #333; border-radius: 12px; margin-bottom: 12px; }
         
-        /* Goldener Header */
         .header-box { 
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(28, 28, 30, 0.95); 
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #333;
-            padding: 15px; text-align: center; 
+            background: #1c1c1e; border-bottom: 1px solid #333;
+            padding: 20px; text-align: center; margin-bottom: 20px; border-radius: 15px;
         }
         
         input, select { 
-            background-color: #2c2c2e !important; border: none !important; color: white !important; height: 45px; border-radius: 8px !important;
+            background-color: #2c2c2e !important; border: 1px solid #444 !important; color: white !important; height: 45px; border-radius: 8px !important;
         }
-        .btn-gold { background: #FFD700; color: black; font-weight: 600; border-radius: 8px; width: 100%; padding: 12px; border: none; }
+        .btn-gold { background: #FFD700; color: black; font-weight: bold; border-radius: 8px; width: 100%; padding: 12px; border: none; }
         
-        .val-gold { color: #FFD700; font-weight: 600; }
-        .val-silver { color: #A0A0A0; font-weight: 600; }
+        .val-gold { color: #FFD700; font-weight: bold; }
+        .val-silver { color: #A0A0A0; font-weight: bold; }
         .profit-plus { color: #32D74B; }
         .profit-minus { color: #FF453A; }
     </style>
 </head>
 <body>
 
-    <div class="header-box">
-        <div style="font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Gesamtwert</div>
-        <div id="totalValue" style="font-size: 32px; font-weight: 700; margin: 5px 0;">0 €</div>
-        <div id="profitDisplay" style="font-size: 14px;">Lade Preise...</div>
-    </div>
-
-    <div class="container" style="margin-top: 80px;">
+    <div class="container">
         
+        <div class="header-box">
+            <small style="color:#888;">GESAMTWERT</small>
+            <h1 id="totalValue" style="margin: 5px 0;">0 €</h1>
+            <div id="profitDisplay" style="font-size: 14px;">Lade Preise...</div>
+        </div>
+
         <div class="card p-3">
-            <h6 class="text-white mb-3" style="opacity:0.7">BESTAND HINZUFÜGEN</h6>
             <div class="row g-2">
                 <div class="col-12">
                     <select id="type" class="form-select">
@@ -55,13 +45,13 @@
                     </select>
                 </div>
                 <div class="col-6">
-                    <input type="number" id="weight" class="form-control" placeholder="Gewicht (g)" inputmode="decimal">
+                    <input type="number" id="weight" class="form-control" placeholder="Gramm (g)">
                 </div>
                 <div class="col-6">
-                    <input type="number" id="buyPrice" class="form-control" placeholder="Kaufpreis (€)" inputmode="decimal">
+                    <input type="number" id="buyPrice" class="form-control" placeholder="Kaufpreis (€)">
                 </div>
                 <div class="col-12 mt-2">
-                    <input type="text" id="name" class="form-control" placeholder="Bezeichnung (z.B. Barren)">
+                    <input type="text" id="name" class="form-control" placeholder="Name (z.B. Barren)">
                 </div>
             </div>
             <button onclick="add()" class="btn-gold mt-3">Hinzufügen</button>
@@ -69,8 +59,8 @@
 
         <div id="list" class="mt-4"></div>
         
-        <div class="text-center mt-5 mb-5">
-            <button onclick="wipe()" class="btn btn-sm text-secondary">Daten zurücksetzen</button>
+        <div class="text-center mt-5">
+            <button onclick="wipe()" class="btn btn-sm btn-outline-secondary">Reset</button>
         </div>
     </div>
 
@@ -80,7 +70,6 @@
         async function init() {
             render();
             try {
-                // Preise holen
                 const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur');
                 const data = await res.json();
                 prices.gold = data['pax-gold'].eur / 31.1035; 
@@ -97,7 +86,7 @@
             const t = document.getElementById('type').value;
             const n = document.getElementById('name').value || (t==='gold'?'Gold':'Silber');
 
-            if (!w || !p) return alert('Bitte Werte eingeben');
+            if (!w || !p) return;
 
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, n });
@@ -105,7 +94,6 @@
             
             document.getElementById('weight').value = '';
             document.getElementById('buyPrice').value = '';
-            document.getElementById('name').value = '';
             render();
         }
 
@@ -117,14 +105,13 @@
             let totalVal = 0;
             let totalInvest = 0;
 
-            // Sortierung: Neueste oben
             items.reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
                 const val = i.w * currentP;
                 const profit = val - i.p;
                 
                 if(prices.gold > 0) totalVal += val;
-                else totalVal += i.p; // Fallback falls kein Internet
+                else totalVal += i.p;
                 
                 totalInvest += i.p;
 
@@ -133,21 +120,20 @@
                 div.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="${i.t === 'gold' ? 'val-gold' : 'val-silver'}" style="font-size:17px;">
+                            <div class="${i.t === 'gold' ? 'val-gold' : 'val-silver'}">
                                 ${i.t === 'gold' ? 'Gold' : 'Silber'} <span style="color:white; font-weight:normal;">${i.w}g</span>
                             </div>
-                            <div style="font-size:13px; color:#666; margin-top:2px;">${i.n}</div>
+                            <small class="text-muted">${i.n}</small>
                         </div>
                         <div class="text-end">
-                            <div style="font-weight:600; font-size:17px;">${prices.gold > 0 ? val.toFixed(2) : '?'} €</div>
-                            <div style="font-size:13px;" class="${profit >= 0 ? 'profit-plus' : 'profit-minus'}">
+                            <strong>${prices.gold > 0 ? val.toFixed(2) : '?'} €</strong><br>
+                            <small class="${profit >= 0 ? 'profit-plus' : 'profit-minus'}">
                                 ${profit >= 0 ? '+' : ''}${profit.toFixed(2)} €
-                            </div>
+                            </small>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between mt-3 pt-2" style="border-top:1px solid #2c2c2e;">
-                        <small style="color:#555;">EK: ${i.p.toFixed(2)} €</small>
-                        <button onclick="del(${i.id})" style="background:none; border:none; color:#FF453A; font-size:18px;">✕</button>
+                    <div class="text-end mt-2">
+                        <button onclick="del(${i.id})" style="background:none; border:none; color:#FF453A;">Löschen</button>
                     </div>
                 `;
                 list.appendChild(div);
@@ -158,7 +144,7 @@
             
             if(prices.gold > 0) {
                 document.getElementById('profitDisplay').innerHTML = 
-                    `<span style="color:#888">Gewinn:</span> <span class="${totalProfit >= 0 ? 'profit-plus' : 'profit-minus'}">${totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(2)} €</span>`;
+                    `Gewinn: <span class="${totalProfit >= 0 ? 'profit-plus' : 'profit-minus'}">${totalProfit >= 0 ? '+' : ''}${totalProfit.toFixed(2)} €</span>`;
             }
         }
 
