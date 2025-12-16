@@ -23,51 +23,60 @@
         .text-red { color: #ff453a !important; font-weight: bold; }
         .text-neutral { color: #888 !important; }
 
-        /* 2. HEADER (Fixiert & Größer für alle Infos) */
+        /* 2. HEADER (Fixiert) */
         .fixed-top-area {
             flex-shrink: 0; background: #000; z-index: 100;
             border-bottom: 1px solid #222;
         }
 
         .header-box { 
-            padding: 15px 20px 10px 20px; 
+            padding: 10px 20px 10px 20px; 
             background: #050505;
+            text-align: center; /* Alles zentriert für besseren Look */
         }
         
+        /* Top Bar (Status + Auge) */
+        .top-bar { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+        /* Großer Euro Wert */
         .big-value { 
-            font-size: 30px; font-weight: 700; color: #e0e0e0; 
-            letter-spacing: -1px; line-height: 1.1; margin-top: 5px;
+            font-size: 32px; font-weight: 700; color: #e0e0e0; 
+            letter-spacing: -1px; line-height: 1.0; margin-top: 0px;
         }
 
-        /* Zeile für Invest & Gewinn (Euro) */
+        /* GESAMT PROZENT (Neu positioniert) */
+        .main-perf {
+            font-size: 16px; margin-top: 2px; margin-bottom: 8px;
+        }
+
+        /* Zeile für Invest & Gewinn (Euro) - Kleiner */
         .stats-row { 
-            display: flex; justify-content: space-between; 
-            margin-top: 5px; font-size: 13px; color: #666; 
-            border-bottom: 1px solid #151515; padding-bottom: 5px;
+            display: flex; justify-content: center; gap: 15px;
+            font-size: 11px; color: #666; 
+            border-bottom: 1px solid #151515; padding-bottom: 8px; margin-bottom: 8px;
         }
 
-        /* Zeile für den Trend (Prozent ab Reset) */
-        .trend-row { 
-            display: flex; gap: 10px; margin-top: 5px; font-size: 12px; align-items: center; 
-        }
-
-        /* Zeile für Gold/Silber Details */
+        /* Detail Boxen (Gold/Silber) */
         .detail-row {
             display: flex; justify-content: space-between;
-            margin-top: 8px; padding-top: 8px;
-            border-top: 1px solid #1a1a1a;
-            font-size: 11px; color: #888;
+            text-align: left; /* Details wieder links/rechts */
         }
-        .detail-col { display: flex; flex-direction: column; width: 48%; }
-        
+        .detail-col { 
+            display: flex; flex-direction: column; width: 48%; 
+            background: #111; padding: 6px; border-radius: 6px; border: 1px solid #222;
+        }
+        .metal-title { font-size: 10px; font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between; }
+        .metal-stats { font-size: 11px; color: #ccc; }
+        .metal-perf { font-size: 11px; margin-top: 2px; }
+
         /* Buttons oben */
         .icon-btn {
             background: none; border: 1px solid #333; color: #888;
             border-radius: 6px; padding: 2px 8px; font-size: 14px;
-            cursor: pointer; margin-left: 10px;
+            cursor: pointer;
         }
         .status-text {
-            font-size: 10px; color: #555; cursor: pointer; border: 1px solid #222; 
+            font-size: 9px; color: #555; cursor: pointer; border: 1px solid #222; 
             padding: 2px 6px; border-radius: 4px; display: inline-block;
         }
 
@@ -99,9 +108,9 @@
             -webkit-overflow-scrolling: touch; 
             background: #000; padding-bottom: 60px;
         }
-        .list-row { border-bottom: 1px solid #111; padding: 12px 15px; background: #000; }
-        .row-top { display: flex; justify-content: space-between; font-size: 14px; color: #ccc; font-weight: 500; }
-        .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 4px; }
+        .list-row { border-bottom: 1px solid #111; padding: 10px 15px; background: #000; }
+        .row-top { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; font-weight: 500; }
+        .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 2px; }
 
         /* Footer */
         .footer-area { text-align: center; padding: 20px 10px; border-top: 1px solid #111; margin-top: 20px; }
@@ -123,36 +132,39 @@
 
     <div class="fixed-top-area">
         <div class="header-box">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center;">
-                    <span id="statusBadge" class="status-text" onclick="fetchPrices()">Verbinden...</span>
-                    <span style="font-size: 10px; color: #444; letter-spacing: 2px; text-transform: uppercase; margin-left: 10px;">DEPOT</span>
-                </div>
+            <div class="top-bar">
+                <span id="statusBadge" class="status-text" onclick="fetchPrices()">Verbinden...</span>
                 <button onclick="togglePrivacy()" class="icon-btn" id="eyeBtn">👁️</button>
             </div>
             
             <div id="totalValue" class="big-value">••••••</div>
             
+            <div id="totalPerf" class="main-perf">0.00 %</div>
+
             <div class="stats-row">
                 <span id="totalInvest">EK: ••••••</span>
-                <span id="totalProfitEuro">••••••</span>
-            </div>
-
-            <div class="trend-row">
-                <span style="color:#555;">Seit Reset:</span>
-                <span id="totalPerf">0.00 %</span>
-                <span id="goldPerf" style="margin-left:5px; font-size:10px;">(Au: 0%)</span>
-                <span id="silverPerf" style="font-size:10px;">(Ag: 0%)</span>
+                <span id="totalProfitEuro">Gewinn: ••••••</span>
             </div>
 
             <div class="detail-row">
-                <div class="detail-col" style="border-right: 1px solid #1a1a1a;">
-                    <span style="color:#FFD700; font-size:10px;">GOLD <span id="goldCount" style="color:#555;">(0)</span></span>
-                    <span id="goldSum" style="color:#ccc;">0 g</span>
+                <div class="detail-col">
+                    <div class="metal-title" style="color:#FFD700;">
+                        GOLD <span id="goldCount" style="color:#555;">(0)</span>
+                    </div>
+                    <div class="metal-stats">
+                        <span id="goldSum">0 g</span>
+                    </div>
+                    <div id="goldPerf" class="metal-perf">0.00 %</div>
                 </div>
-                <div class="detail-col" style="padding-left: 15px;">
-                    <span style="color:#aaa; font-size:10px;">SILBER <span id="silverCount" style="color:#555;">(0)</span></span>
-                    <span id="silverSum" style="color:#ccc;">0 g</span>
+
+                <div class="detail-col">
+                    <div class="metal-title" style="color:#aaa;">
+                        SILBER <span id="silverCount" style="color:#555;">(0)</span>
+                    </div>
+                    <div class="metal-stats">
+                        <span id="silverSum">0 g</span>
+                    </div>
+                    <div id="silverPerf" class="metal-perf">0.00 %</div>
                 </div>
             </div>
         </div>
@@ -185,32 +197,30 @@
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="setBaseline()" class="start-btn">⏱️ Prozent-Startpunkt jetzt setzen</button>
-            <p style="font-size:9px; color:#444; margin-bottom:15px;">Berechnet den %-Trend ab diesem Klick neu.</p>
+            <button onclick="setBaseline()" class="start-btn">⏱️ Startpunkt (0%) setzen</button>
+            <p style="font-size:9px; color:#444;">Prozentanzeige zählt ab diesem Klick.</p>
 
-            <p style="color:#444; font-size:10px; text-transform:uppercase;">Daten & Sicherheit</p>
-            <button onclick="copyToClipboard()" class="backup-btn">📋 Code Kopieren</button>
-            <button onclick="pasteFromClipboard()" class="backup-btn">📥 Code Einfügen</button>
+            <p style="color:#444; font-size:10px; text-transform:uppercase; margin-top:20px;">Daten</p>
+            <button onclick="copyToClipboard()" class="backup-btn">📋 Kopieren</button>
+            <button onclick="pasteFromClipboard()" class="backup-btn">📥 Einfügen</button>
             <textarea id="copyArea"></textarea>
             
-            <div style="margin-top:15px; opacity:0.5;">
-                <button onclick="downloadFile()" class="backup-btn" style="width:30%; font-size:10px;">↓ Datei</button>
+            <div style="margin-top:10px; opacity:0.5;">
+                <button onclick="downloadFile()" class="backup-btn" style="width:30%; font-size:9px;">↓ Datei</button>
                 <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
-                <button onclick="document.getElementById('fileInput').click()" class="backup-btn" style="width:30%; font-size:10px;">↑ Datei</button>
+                <button onclick="document.getElementById('fileInput').click()" class="backup-btn" style="width:30%; font-size:9px;">↑ Datei</button>
             </div>
 
             <br>
-            <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer; text-decoration:underline;">Alles Reset</span>
+            <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer; text-decoration:underline;">Reset</span>
             <br>
-            <span style="font-size:9px; color:#333;">V 10.0 (Full Stats)</span>
+            <span style="font-size:9px; color:#333;">V 11.0</span>
         </div>
     </div>
 
     <script>
         let prices = { gold: 0, silver: 0 };
         let privacyMode = true; 
-
-        // Startpunkt-Daten
         let baseline = { active: false, totalVal: 0, goldVal: 0, silverVal: 0 };
 
         async function init() {
@@ -250,12 +260,10 @@
             return num.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' g';
         }
 
-        // --- STARTPUNKT LOGIK ---
         function setBaseline() {
-            if(!confirm("Prozentanzeige jetzt auf 0% setzen?")) return;
+            if(!confirm("Startpunkt für % auf 0 setzen?")) return;
             const items = JSON.parse(localStorage.getItem('db')) || [];
             let currentTotal = 0; let currentGold = 0; let currentSilver = 0;
-
             items.forEach(i => {
                 const p = i.t === 'gold' ? prices.gold : prices.silver;
                 const val = i.w * p;
@@ -269,20 +277,27 @@
 
         function calcPerf(current, base, elemId) {
             const el = document.getElementById(elemId);
-            if(privacyMode) { el.innerText = "••••"; el.className = ""; return; }
-            if(!baseline.active || base === 0) { el.innerText = "0.00 %"; el.className = "text-neutral"; return; }
+            if(privacyMode) { el.innerText = "••••"; el.className = "main-perf text-neutral"; return; }
+            
+            // Sonderfall: Wenn 0, dann 0%
+            if(!baseline.active || base === 0) { 
+                el.innerText = "0.00 %"; 
+                // Behalte die Basis-Klasse (z.B. main-perf oder metal-perf)
+                if(elemId === 'totalPerf') el.className = "main-perf text-neutral";
+                else el.className = "metal-perf text-neutral";
+                return; 
+            }
             
             const diff = current - base;
             const percent = (diff / base) * 100;
             const prefix = percent >= 0 ? '+' : '';
             
-            // Für Gold/Silber kleinerer Text
-            let label = "";
-            if(elemId === 'goldPerf') label = "Au: ";
-            if(elemId === 'silverPerf') label = "Ag: ";
-
-            el.innerText = label + prefix + percent.toFixed(2) + " %";
-            el.className = percent >= 0 ? "text-green" : "text-red";
+            el.innerText = prefix + percent.toFixed(2) + " %";
+            
+            // Setze Klasse je nach ID (damit die Schriftgröße stimmt)
+            const baseClass = (elemId === 'totalPerf') ? "main-perf" : "metal-perf";
+            const colorClass = percent >= 0 ? "text-green" : "text-red";
+            el.className = baseClass + " " + colorClass;
         }
 
         function render() {
@@ -310,7 +325,6 @@
                 totalVal += val;
                 totalInvest += i.p;
 
-                // Liste Rendern (Neutral)
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 div.innerHTML = `
@@ -329,30 +343,29 @@
                 list.appendChild(div);
             });
 
-            // 1. TOTAL VALUE & INVEST
+            // HEADER UPDATES
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest, ' €');
             
-            // 2. ABSOLUTER GEWINN (EURO)
+            // ABSOLUTER GEWINN (EURO)
             const totalProfit = totalVal - totalInvest;
-            const profEuroElem = document.getElementById('totalProfitEuro');
+            const profElem = document.getElementById('totalProfitEuro');
             if(prices.gold > 0) {
-                if(privacyMode) { 
-                    profEuroElem.innerText = "••••••"; profEuroElem.className = "";
-                } else {
-                    const prefix = totalProfit >= 0 ? '+ ' : '- ';
-                    profEuroElem.innerText = prefix + Math.abs(totalProfit).toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
-                    profEuroElem.className = totalProfit >= 0 ? 'text-green' : 'text-red';
+                if(privacyMode) { profElem.innerText = "••••••"; profElem.className = ""; }
+                else {
+                    const prefix = totalProfit >= 0 ? '+' : '-';
+                    profElem.innerText = "Gewinn: " + prefix + Math.abs(totalProfit).toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
+                    profElem.className = totalProfit >= 0 ? 'text-green' : 'text-red';
                 }
-            } else { profEuroElem.innerText = "Offline"; }
+            } else { profElem.innerText = "Offline"; }
 
-            // 3. DETAILS
+            // DETAILS
             document.getElementById('goldSum').innerText = fmtWeight(sumGoldW);
             document.getElementById('goldCount').innerText = '(' + countGold + ')';
             document.getElementById('silverSum').innerText = fmtWeight(sumSilverW);
             document.getElementById('silverCount').innerText = '(' + countSilver + ')';
 
-            // 4. TREND PROZENTE (SEIT RESET)
+            // PERFORMANCE PROZENTE (SEIT RESET)
             if(prices.gold > 0) {
                 calcPerf(totalVal, baseline.totalVal, 'totalPerf');
                 calcPerf(goldValCurrent, baseline.goldVal, 'goldPerf');
@@ -376,49 +389,17 @@
             render();
         }
 
-        // COPY & PASTE
+        // COPY & PASTE & FILE
         function copyToClipboard() {
             const data = localStorage.getItem('db') || '[]';
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(data).then(() => { alert("Kopiert!"); }).catch(err => { fallbackCopy(data); });
-            } else { fallbackCopy(data); }
+            if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data).then(() => { alert("Kopiert!"); }).catch(err => { fallbackCopy(data); }); } 
+            else { fallbackCopy(data); }
         }
-        function fallbackCopy(text) {
-            const textArea = document.getElementById("copyArea");
-            textArea.style.display = "block"; textArea.value = text; textArea.select();
-            document.execCommand('copy'); textArea.style.display = "none"; alert("Kopiert!");
-        }
-        async function pasteFromClipboard() {
-            try { const text = await navigator.clipboard.readText(); if(text) loadFromText(text); } 
-            catch (err) { const code = prompt("Code einfügen:"); if(code) loadFromText(code); }
-        }
-        function loadFromText(jsonString) {
-            try {
-                const json = JSON.parse(jsonString);
-                if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert("Daten geladen!"); }
-            } catch(e) { alert("Fehler beim Einfügen."); }
-        }
-
-        // DATEI
-        function downloadFile() {
-            const data = localStorage.getItem('db') || '[]';
-            const date = new Date().toISOString().slice(0,10);
-            const blob = new Blob([data], {type: 'text/plain'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `depot_backup_${date}.txt`; 
-            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        }
-        function uploadFile(input) {
-            const file = input.files[0]; if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const json = JSON.parse(e.target.result);
-                    if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert('Geladen!'); }
-                } catch(err) { alert("Lesefehler"); }
-            }; reader.readAsText(file);
-        }
-
+        function fallbackCopy(text) { const ta = document.getElementById("copyArea"); ta.style.display = "block"; ta.value = text; ta.select(); document.execCommand('copy'); ta.style.display = "none"; alert("Kopiert!"); }
+        async function pasteFromClipboard() { try { const text = await navigator.clipboard.readText(); if(text) loadFromText(text); } catch (err) { const code = prompt("Code:"); if(code) loadFromText(code); } }
+        function loadFromText(jsonString) { try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert("Geladen!"); } } catch(e) { alert("Fehler"); } }
+        function downloadFile() { const data = localStorage.getItem('db') || '[]'; const date = new Date().toISOString().slice(0,10); const blob = new Blob([data], {type: 'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `depot_backup_${date}.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+        function uploadFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const json = JSON.parse(e.target.result); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert('Geladen!'); } } catch(err) { alert("Fehler"); } }; reader.readAsText(file); }
         function del(id) { if(confirm('Löschen?')) { let items = JSON.parse(localStorage.getItem('db')) || []; items = items.filter(i => i.id !== id); localStorage.setItem('db', JSON.stringify(items)); render(); } }
         function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
 
