@@ -137,14 +137,13 @@
         </div>
     </div>
 
-
     <div class="scrollable-list">
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="downloadFile()" class="file-btn">↓ Sichern (.txt)</button>
+            <button onclick="downloadFile()" class="file-btn">↓ Sichern</button>
             
-            <input type="file" id="fileInput" style="display:none" accept=".txt,text/plain" onchange="uploadFile(this)">
+            <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
             
             <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
             <br><br>
@@ -152,10 +151,8 @@
         </div>
     </div>
 
-
     <script>
         let prices = { gold: 0, silver: 0 };
-        // START: Immer versteckt
         let privacyMode = true; 
 
         async function init() {
@@ -166,75 +163,45 @@
 
         async function fetchPrices() {
             const badge = document.getElementById('statusBadge');
-            badge.innerText = "Lade...";
-            badge.style.color = "orange";
-            badge.style.borderColor = "orange";
-
+            badge.innerText = "Lade..."; badge.style.color = "orange"; badge.style.borderColor = "orange";
             try {
                 const timestamp = new Date().getTime();
                 const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
-                
-                if (res.status === 429) throw new Error("429");
                 if (!res.ok) throw new Error("Offline");
-
                 const data = await res.json();
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
-                
-                badge.innerText = "Online ●";
-                badge.style.color = "#4cd964"; 
-                badge.style.borderColor = "#4cd964";
+                badge.innerText = "Online ●"; badge.style.color = "#4cd964"; badge.style.borderColor = "#4cd964";
                 render();
             } catch (e) {
-                if(e.message === "429") {
-                    badge.innerText = "Warte 1min...";
-                    badge.style.color = "#ff3b30";
-                } else {
-                    badge.innerText = "Offline ↻";
-                    badge.style.color = "#ff3b30";
-                }
-                badge.style.borderColor = "#ff3b30";
+                badge.innerText = "Offline ↻"; badge.style.color = "#ff3b30"; badge.style.borderColor = "#ff3b30";
             }
         }
 
         function togglePrivacy() {
-            privacyMode = !privacyMode;
-            updateEyeIcon();
-            render();
+            privacyMode = !privacyMode; updateEyeIcon(); render();
         }
-
         function updateEyeIcon() {
             const btn = document.getElementById('eyeBtn');
-            if(privacyMode) {
-                btn.innerText = '👁️'; btn.style.color = "#888";
-            } else {
-                btn.innerText = '🙈'; btn.style.color = "#ccc";
-            }
+            btn.innerText = privacyMode ? '👁️' : '🙈';
+            btn.style.color = privacyMode ? "#888" : "#ccc";
         }
-
         function fmt(num, isCurrency = true) {
             if (privacyMode) return "••••••";
-            return num.toLocaleString('de-DE', {
-                minimumFractionDigits: 2, maximumFractionDigits: 2
-            }) + (isCurrency ? ' €' : '');
+            return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (isCurrency ? ' €' : '');
         }
 
         function render() {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const list = document.getElementById('list');
             list.innerHTML = '';
-            
-            let totalVal = 0;
-            let totalInvest = 0;
-
+            let totalVal = 0; let totalInvest = 0;
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
                 let val = i.p; 
                 if(prices.gold > 0) val = i.w * currentP;
                 const profit = val - i.p;
-                totalVal += val;
-                totalInvest += i.p;
-
+                totalVal += val; totalInvest += i.p;
                 const prefix = profit >= 0 ? '+ ' : '- ';
                 const absProfit = Math.abs(profit);
 
@@ -260,7 +227,6 @@
                 `;
                 list.appendChild(div);
             });
-
             document.getElementById('totalValue').innerText = fmt(totalVal);
             document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest);
             const totalProfit = totalVal - totalInvest;
@@ -277,33 +243,26 @@
         function add() {
             let wVal = document.getElementById('weight').value.replace(',', '.');
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
-            const w = parseFloat(wVal);
-            const p = parseFloat(pVal);
+            const w = parseFloat(wVal); const p = parseFloat(pVal);
             const t = document.getElementById('type').value;
             const name = document.getElementById('itemName').value || (t==='gold'?'Gold':'Silber');
             if (!w || !p) return;
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, name });
             localStorage.setItem('db', JSON.stringify(items));
-            document.getElementById('weight').value = '';
-            document.getElementById('buyPrice').value = '';
-            document.getElementById('itemName').value = '';
+            document.getElementById('weight').value = ''; document.getElementById('buyPrice').value = ''; document.getElementById('itemName').value = '';
             render();
         }
 
-        // --- DATEI ALS TXT SPEICHERN ---
         function downloadFile() {
             const data = localStorage.getItem('db') || '[]';
             const date = new Date().toISOString().slice(0,10);
-            const blob = new Blob([data], {type: 'text/plain'}); // Text/Plain erzwingen
+            const blob = new Blob([data], {type: 'text/plain'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `depot_backup_${date}.txt`; // Endung .txt erzwingen
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            a.download = `depot_backup_${date}.txt`; 
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
         function uploadFile(input) {
@@ -316,24 +275,14 @@
                     if(Array.isArray(json)) {
                         localStorage.setItem('db', JSON.stringify(json));
                         render(); alert('Geladen!');
-                    } else { alert('Falsches Format'); }
-                } catch(err) { alert("Fehler beim Lesen"); }
+                    } else { alert('Format-Fehler'); }
+                } catch(err) { alert("Lesefehler"); }
             };
             reader.readAsText(file);
         }
 
-        function del(id) {
-            if(confirm('Löschen?')) {
-                let items = JSON.parse(localStorage.getItem('db')) || [];
-                items = items.filter(i => i.id !== id);
-                localStorage.setItem('db', JSON.stringify(items));
-                render();
-            }
-        }
-
-        function wipe() {
-            if(confirm('Alles löschen?')) { localStorage.clear(); render(); }
-        }
+        function del(id) { if(confirm('Löschen?')) { let items = JSON.parse(localStorage.getItem('db')) || []; items = items.filter(i => i.id !== id); localStorage.setItem('db', JSON.stringify(items)); render(); } }
+        function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
 
         init();
     </script>
