@@ -18,10 +18,10 @@
             display: flex; flex-direction: column;
         }
 
-        /* FARBEN FÜR GEWINN/VERLUST */
-        .text-green { color: #32d74b !important; }
-        .text-red { color: #ff453a !important; }
-        .text-gray { color: #aaa !important; }
+        /* FARBEN FÜR PROZENTE OBEN */
+        .text-green { color: #32d74b !important; font-weight: bold; }
+        .text-red { color: #ff453a !important; font-weight: bold; }
+        .text-neutral { color: #888 !important; }
 
         /* 2. HEADER (Fixiert) */
         .fixed-top-area {
@@ -39,18 +39,19 @@
             letter-spacing: -1px; line-height: 1.1; margin-top: 5px;
         }
 
-        .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #666; }
-
-        /* Detail Stats (Gramm & Anzahl) */
+        /* Performance Zeile */
+        .perf-row { display: flex; gap: 15px; margin-top: 8px; font-size: 14px; align-items: center; }
+        
+        /* Detail Stats (Gold/Silber getrennt) */
         .detail-row {
             display: flex; justify-content: space-between;
-            margin-top: 12px; padding-top: 8px;
+            margin-top: 15px; padding-top: 10px;
             border-top: 1px solid #1a1a1a;
-            font-size: 11px; color: #888;
+            font-size: 12px; color: #888;
         }
-        .detail-item { display: flex; align-items: center; gap: 5px; }
-        .count-badge { background: #1a1a1a; padding: 1px 5px; border-radius: 4px; color: #555; font-size: 10px; }
-        
+        .detail-col { display: flex; flex-direction: column; width: 48%; }
+        .detail-head { font-size: 10px; text-transform: uppercase; margin-bottom: 2px; }
+
         /* Buttons oben */
         .icon-btn {
             background: none; border: 1px solid #333; color: #888;
@@ -105,9 +106,13 @@
             padding: 10px; border-radius: 6px; font-size: 11px; 
             width: 45%; margin: 5px; cursor: pointer;
         }
+        .start-btn {
+            background: #1a1a1a; color: #FFD700; border: 1px solid #333;
+            padding: 12px; border-radius: 8px; font-size: 12px; font-weight: bold;
+            width: 92%; margin: 10px auto; cursor: pointer; display: block;
+        }
         .del-btn { color: #333; font-size: 16px; margin-left: 10px; padding: 0 5px; cursor: pointer; }
         
-        /* Copy Area (Hidden) */
         #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; font-size: 10px; display: none; margin-top: 10px; }
     </style>
 </head>
@@ -125,21 +130,19 @@
             
             <div id="totalValue" class="big-value">••••••</div>
             
-            <div class="stats-row">
-                <span id="totalInvest">EK: ••••••</span>
-                <span id="profitDisplay" style="font-weight:bold;">••••••</span>
+            <div class="perf-row">
+                <span style="color:#666;">Seit Start:</span>
+                <span id="totalPerf">0.00 %</span>
             </div>
 
             <div class="detail-row">
-                <div class="detail-item">
-                    <span style="color:#FFD700;">●</span> 
-                    <span>Au: <span id="goldSum" style="color:#ccc; font-weight:bold;">0 g</span></span>
-                    <span id="goldCount" class="count-badge">0</span>
+                <div class="detail-col" style="border-right: 1px solid #1a1a1a;">
+                    <span class="detail-head" style="color:#FFD700;">Gold <span id="goldSum">0g</span></span>
+                    <span id="goldPerf">0.00 %</span>
                 </div>
-                <div class="detail-item">
-                    <span style="color:#aaa;">●</span> 
-                    <span>Ag: <span id="silverSum" style="color:#ccc; font-weight:bold;">0 g</span></span>
-                    <span id="silverCount" class="count-badge">0</span>
+                <div class="detail-col" style="padding-left: 15px;">
+                    <span class="detail-head" style="color:#ccc;">Silber <span id="silverSum">0g</span></span>
+                    <span id="silverPerf">0.00 %</span>
                 </div>
             </div>
         </div>
@@ -172,13 +175,15 @@
         <div id="list"></div>
         
         <div class="footer-area">
+            <button onclick="setBaseline()" class="start-btn">⏱️ Startpunkt jetzt setzen (0%)</button>
+            <p style="font-size:9px; color:#444; margin-bottom:20px;">Ab diesem Klick zählt die Prozentanzeige oben.</p>
+
             <p style="color:#444; font-size:10px; text-transform:uppercase;">Daten & Sicherheit</p>
             <button onclick="copyToClipboard()" class="backup-btn">📋 Code Kopieren</button>
             <button onclick="pasteFromClipboard()" class="backup-btn">📥 Code Einfügen</button>
             <textarea id="copyArea"></textarea>
             
             <div style="margin-top:15px; opacity:0.5;">
-                <p style="font-size:9px; margin-bottom:5px;">Datei (Fallback):</p>
                 <button onclick="downloadFile()" class="backup-btn" style="width:30%; font-size:10px;">↓ Datei</button>
                 <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
                 <button onclick="document.getElementById('fileInput').click()" class="backup-btn" style="width:30%; font-size:10px;">↑ Datei</button>
@@ -187,7 +192,7 @@
             <br>
             <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer; text-decoration:underline;">Alles Reset</span>
             <br>
-            <span style="font-size:9px; color:#333;">Version 8.0 (Farben)</span>
+            <span style="font-size:9px; color:#333;">Version 9.0 (Startpunkt)</span>
         </div>
     </div>
 
@@ -195,7 +200,19 @@
         let prices = { gold: 0, silver: 0 };
         let privacyMode = true; 
 
+        // Startpunkt-Daten
+        let baseline = {
+            active: false,
+            totalVal: 0,
+            goldVal: 0,
+            silverVal: 0
+        };
+
         async function init() {
+            // Baseline laden
+            const savedBase = localStorage.getItem('baseline');
+            if(savedBase) baseline = JSON.parse(savedBase);
+
             updateEyeIcon();
             render();
             await fetchPrices();
@@ -222,42 +239,86 @@
         function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#888" : "#ccc"; }
         
         function fmt(num, suffix = '') {
-            if (privacyMode && suffix !== ' Stk') return "••••";
+            if (privacyMode) return "••••";
             return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
         }
-        function fmtWeight(num) {
-            if (privacyMode) return "••••";
-            return num.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' g';
+
+        // --- STARTPUNKT LOGIK ---
+        function setBaseline() {
+            if(!confirm("Prozentanzeige jetzt auf 0% setzen?")) return;
+            
+            // Berechne aktuelle Werte für den Schnappschuss
+            const items = JSON.parse(localStorage.getItem('db')) || [];
+            let currentTotal = 0;
+            let currentGold = 0;
+            let currentSilver = 0;
+
+            items.forEach(i => {
+                const p = i.t === 'gold' ? prices.gold : prices.silver;
+                const val = i.w * p;
+                currentTotal += val;
+                if(i.t === 'gold') currentGold += val;
+                else currentSilver += val;
+            });
+
+            baseline = {
+                active: true,
+                totalVal: currentTotal,
+                goldVal: currentGold,
+                silverVal: currentSilver
+            };
+            
+            localStorage.setItem('baseline', JSON.stringify(baseline));
+            render();
+            alert("Startpunkt gesetzt!");
         }
+
+        // Prozent-Helfer
+        function calcPerf(current, base, elemId) {
+            const el = document.getElementById(elemId);
+            if(privacyMode) { el.innerText = "••••"; el.className = ""; return; }
+            
+            if(!baseline.active || base === 0) {
+                el.innerText = "0.00 %";
+                el.className = "text-neutral";
+                return;
+            }
+
+            const diff = current - base;
+            const percent = (diff / base) * 100;
+            
+            const prefix = percent >= 0 ? '+' : '';
+            el.innerText = prefix + percent.toFixed(2) + " %";
+            el.className = percent >= 0 ? "text-green" : "text-red";
+        }
+
 
         function render() {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const list = document.getElementById('list');
             list.innerHTML = '';
             
-            let totalVal = 0; let totalInvest = 0;
-            let sumGoldW = 0; let countGold = 0;
-            let sumSilverW = 0; let countSilver = 0;
+            let totalVal = 0;
+            let sumGoldW = 0; let goldValCurrent = 0;
+            let sumSilverW = 0; let silverValCurrent = 0;
 
+            // 1. Berechnen
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
-                if (i.t === 'gold') { sumGoldW += i.w; countGold++; } else { sumSilverW += i.w; countSilver++; }
-
                 let val = i.p; 
                 if(prices.gold > 0) val = i.w * currentP;
-                const profit = val - i.p;
-                totalVal += val; totalInvest += i.p;
                 
-                // Vorzeichen
-                const prefix = profit >= 0 ? '+ ' : '- ';
-                const absProfit = Math.abs(profit);
+                totalVal += val;
                 
-                // Farbe bestimmen (Nur wenn Preise da sind UND Privacy aus ist)
-                let colorClass = 'text-gray';
-                if (!privacyMode && prices.gold > 0) {
-                    colorClass = profit >= 0 ? 'text-green' : 'text-red';
+                if (i.t === 'gold') { 
+                    sumGoldW += i.w; 
+                    if(prices.gold > 0) goldValCurrent += val;
+                } else { 
+                    sumSilverW += i.w; 
+                    if(prices.gold > 0) silverValCurrent += val;
                 }
 
+                // 2. Liste Rendern (NEUTRAL, KEIN ROT/GRÜN MEHR)
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 div.innerHTML = `
@@ -270,48 +331,25 @@
                     </div>
                     <div class="row-bot">
                         <span style="margin-left: 20px;">EK: ${fmt(i.p, ' €')}</span>
-                        <span>
-                            <span class="${colorClass}">
-                                ${privacyMode ? '••••••' : (prices.gold > 0 ? (prefix + absProfit.toLocaleString('de-DE', {minimumFractionDigits:2}) + ' €') : 'Offline')}
-                            </span>
-                            <span onclick="del(${i.id})" class="del-btn">×</span>
-                        </span>
+                        <span onclick="del(${i.id})" class="del-btn">×</span>
                     </div>
                 `;
                 list.appendChild(div);
             });
 
-            // HEADER UPDATES
+            // 3. Header Werte (Euro)
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
-            document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest, ' €');
-            
-            const totalProfit = totalVal - totalInvest;
-            const pElem = document.getElementById('profitDisplay');
-            
-            // Gesamtsumme färben
-            if(prices.gold > 0) {
-                if(privacyMode) { 
-                    pElem.innerText = "••••••"; 
-                    pElem.className = ""; // Keine Farbe bei Privacy
-                    pElem.style.color = "#555";
-                } else {
-                    const prefix = totalProfit >= 0 ? '+ ' : '- ';
-                    pElem.innerText = prefix + Math.abs(totalProfit).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
-                    // Klasse setzen für Farbe
-                    pElem.className = totalProfit >= 0 ? 'text-green' : 'text-red';
-                    pElem.style.color = ""; // Inline Style resetten
-                }
-            } else { 
-                pElem.innerText = privacyMode ? "••••••" : "(Offline)"; 
-                pElem.className = "";
-                pElem.style.color = "#555";
-            }
+            document.getElementById('goldSum').innerText = privacyMode ? "••••" : (sumGoldW.toLocaleString('de-DE') + 'g');
+            document.getElementById('silverSum').innerText = privacyMode ? "••••" : (sumSilverW.toLocaleString('de-DE') + 'g');
 
-            // DETAILS
-            document.getElementById('goldSum').innerText = fmtWeight(sumGoldW);
-            document.getElementById('goldCount').innerText = countGold + ' Stk';
-            document.getElementById('silverSum').innerText = fmtWeight(sumSilverW);
-            document.getElementById('silverCount').innerText = countSilver + ' Stk';
+            // 4. PERFORMANCE BERECHNEN (Rot/Grün nur hier)
+            if(prices.gold > 0) {
+                calcPerf(totalVal, baseline.totalVal, 'totalPerf');
+                calcPerf(goldValCurrent, baseline.goldVal, 'goldPerf');
+                calcPerf(silverValCurrent, baseline.silverVal, 'silverPerf');
+            } else {
+                document.getElementById('totalPerf').innerText = "Offline";
+            }
         }
 
         function add() {
