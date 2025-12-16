@@ -36,6 +36,7 @@
 
         .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #666; }
         
+        /* Buttons oben */
         .icon-btn {
             background: none; border: 1px solid #333; color: #888;
             border-radius: 6px; padding: 2px 8px; font-size: 14px;
@@ -73,7 +74,7 @@
         .scrollable-list {
             flex-grow: 1; overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            background: #000; padding-bottom: 40px;
+            background: #000; padding-bottom: 60px;
         }
 
         .list-row { 
@@ -82,14 +83,22 @@
         .row-top { display: flex; justify-content: space-between; font-size: 14px; color: #ccc; font-weight: 500; }
         .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 4px; }
 
-        /* Footer */
-        .footer-area { text-align: center; padding: 30px 10px; opacity: 0.5; }
-        .file-btn {
-            background: #111; color: #888; border: 1px solid #333;
-            padding: 8px 15px; border-radius: 6px; font-size: 11px; margin: 0 5px;
-            text-decoration: none; display: inline-block;
+        /* Footer / Backup Menü */
+        .footer-area { text-align: center; padding: 20px 10px; border-top: 1px solid #111; margin-top: 20px; }
+        
+        /* Backup Buttons */
+        .backup-btn {
+            background: #111; color: #aaa; border: 1px solid #333;
+            padding: 10px; border-radius: 6px; font-size: 11px; 
+            width: 45%; margin: 5px; cursor: pointer;
         }
         .del-btn { color: #333; font-size: 16px; margin-left: 10px; padding: 0 5px; cursor: pointer; }
+        
+        /* Textarea für Copy Paste (versteckt) */
+        #copyArea { 
+            width: 100%; height: 50px; background: #111; color: #555; 
+            border: 1px solid #333; font-size: 10px; display: none; margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -136,19 +145,29 @@
         </div>
     </div>
 
+
     <div class="scrollable-list">
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="downloadFile()" class="file-btn">↓ Sichern</button>
+            <p style="color:#444; font-size:10px; text-transform:uppercase;">Daten & Sicherheit</p>
             
-            <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
+            <button onclick="copyToClipboard()" class="backup-btn">📋 Code Kopieren (Sichern)</button>
+            <button onclick="pasteFromClipboard()" class="backup-btn">📥 Code Einfügen (Laden)</button>
             
-            <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
-            <br><br>
-            <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer;">Reset</span>
+            <textarea id="copyArea" placeholder="Code hier einfügen..."></textarea>
+            
+            <div style="margin-top:15px; opacity:0.5;">
+                <p style="font-size:9px; margin-bottom:5px;">Alternative (Dateien):</p>
+                <button onclick="downloadFile()" class="backup-btn" style="width:30%; font-size:10px;">↓ Datei</button>
+                <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
+                <button onclick="document.getElementById('fileInput').click()" class="backup-btn" style="width:30%; font-size:10px;">↑ Datei</button>
+            </div>
+
             <br>
-            <span style="font-size:9px; color:#333;">VERSION 5.0 (Cache Check)</span>
+            <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer; text-decoration:underline;">Alles Reset</span>
+            <br>
+            <span style="font-size:9px; color:#333;">V 6.0 (Copy Paste Fix)</span>
         </div>
     </div>
 
@@ -179,14 +198,8 @@
             }
         }
 
-        function togglePrivacy() {
-            privacyMode = !privacyMode; updateEyeIcon(); render();
-        }
-        function updateEyeIcon() {
-            const btn = document.getElementById('eyeBtn');
-            btn.innerText = privacyMode ? '👁️' : '🙈';
-            btn.style.color = privacyMode ? "#888" : "#ccc";
-        }
+        function togglePrivacy() { privacyMode = !privacyMode; updateEyeIcon(); render(); }
+        function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#888" : "#ccc"; }
         function fmt(num, isCurrency = true) {
             if (privacyMode) return "••••••";
             return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + (isCurrency ? ' €' : '');
@@ -255,14 +268,67 @@
             render();
         }
 
+        // --- COPY & PASTE FUNKTION (100% Sicher) ---
+        function copyToClipboard() {
+            const data = localStorage.getItem('db') || '[]';
+            
+            // Versuch 1: Moderne API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(data).then(() => {
+                    alert("Daten kopiert! Du kannst sie jetzt in 'Notizen' einfügen.");
+                }).catch(err => {
+                    fallbackCopy(data);
+                });
+            } else {
+                fallbackCopy(data);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textArea = document.getElementById("copyArea");
+            textArea.style.display = "block";
+            textArea.value = text;
+            textArea.select();
+            document.execCommand('copy');
+            textArea.style.display = "none";
+            alert("Daten kopiert! (Fallback)");
+        }
+
+        async function pasteFromClipboard() {
+            // Versuch 1: Lesen aus Zwischenablage
+            try {
+                const text = await navigator.clipboard.readText();
+                if(text) loadFromText(text);
+            } catch (err) {
+                // Fallback: Textfeld anzeigen
+                const code = prompt("Bitte den Code hier einfügen:");
+                if(code) loadFromText(code);
+            }
+        }
+
+        function loadFromText(jsonString) {
+            try {
+                const json = JSON.parse(jsonString);
+                if(Array.isArray(json)) {
+                    localStorage.setItem('db', JSON.stringify(json));
+                    render();
+                    alert("Daten erfolgreich geladen!");
+                } else {
+                    alert("Das war kein gültiger Code.");
+                }
+            } catch(e) {
+                alert("Fehler beim Lesen des Codes.");
+            }
+        }
+
+        // --- ALTE DATEI FUNKTIONEN ---
         function downloadFile() {
             const data = localStorage.getItem('db') || '[]';
             const date = new Date().toISOString().slice(0,10);
             const blob = new Blob([data], {type: 'text/plain'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `depot_backup_${date}.txt`; 
+            a.href = url; a.download = `depot_backup_${date}.txt`; 
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
