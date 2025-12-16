@@ -2,174 +2,271 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein Gold & Silber</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mein Depot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
-        body { background-color: #f8f9fa; padding: 20px; }
-        .card { margin-bottom: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .total-box { background: linear-gradient(45deg, #FFD700, #DAA520); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .silver-text { color: #717171; font-weight: bold; }
-        .gold-text { color: #D4AF37; font-weight: bold; }
-        .profit-plus { color: green; }
-        .profit-minus { color: red; }
+        /* ERZWINGEN DES DARK MODES */
+        html, body {
+            background-color: #000000 !important;
+            color: #ffffff !important;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        /* HEADER BOX */
+        .header-box { 
+            background: #111111;
+            border-bottom: 1px solid #333;
+            padding: 20px; 
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        /* CARD DESIGN (Die Boxen) */
+        .card { 
+            background-color: #1c1c1e !important; 
+            border: 1px solid #333 !important; 
+            border-radius: 12px; 
+            margin-bottom: 10px; 
+            padding: 12px; 
+        }
+
+        /* EINGABEFELDER (Weißer Text auf dunklem Grund) */
+        input, select { 
+            background-color: #2c2c2e !important; 
+            border: 1px solid #444 !important; 
+            color: #fff !important; 
+            border-radius: 8px !important;
+            height: 45px !important;
+        }
+        input::placeholder { color: #888 !important; }
+        input:focus, select:focus { border-color: #FFD700 !important; box-shadow: none !important; }
+
+        /* BUTTONS */
+        .btn-gold { 
+            background: #FFD700; color: #000; font-weight: 800; 
+            border: none; border-radius: 8px; width: 100%; height: 45px;
+        }
+        .refresh-btn {
+            font-size: 24px; color: #FFD700; background: none; border: none; padding: 0 10px;
+        }
+
+        /* TEXT STYLES */
+        .label-small { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .val-big { font-size: 28px; font-weight: 700; color: white; margin: 5px 0; }
+        .val-sub { font-size: 14px; color: #aaa; }
+        
+        .profit-plus { color: #4cd964; font-weight: bold; }
+        .profit-minus { color: #ff3b30; font-weight: bold; }
+        
+        .item-price-label { font-size: 12px; color: #666; margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="container" style="max-width: 600px;">
-        
-        <div class="text-center total-box">
-            <h3>Gesamtwert</h3>
-            <h1 id="totalValue">0,00 €</h1>
-            <p id="totalProfit">Gewinn/Verlust: 0,00 €</p>
-            <small id="priceInfo">Lade Preise...</small>
+    <div class="header-box">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <div class="label-small">AKTUELLER WERT</div>
+                <div id="totalValue" class="val-big">0,00 €</div>
+                <div id="totalInvest" class="val-sub">Investiert: 0,00 €</div>
+            </div>
+            <div class="text-end">
+                <button onclick="manualRefresh()" class="refresh-btn" id="refreshBtn">↻</button>
+                <div id="profitDisplay" style="margin-top:5px; font-size:15px;">...</div>
+            </div>
         </div>
+        <div id="statusMsg" style="font-size:11px; color:#555; text-align:center; margin-top:10px;">
+            Preise werden geladen...
+        </div>
+    </div>
 
+    <div class="container mt-3">
+        
         <div class="card p-3">
-            <h5>Neuen Eintrag hinzufügen</h5>
-            <div class="mb-2">
-                <select id="metalType" class="form-select">
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silber</option>
-                </select>
-            </div>
-            <div class="mb-2">
-                <input type="text" id="itemName" class="form-control" placeholder="Beschreibung (z.B. Maple Leaf)">
-            </div>
-            <div class="row">
-                <div class="col">
-                    <input type="number" id="weight" class="form-control" placeholder="Gewicht (Gramm)">
+            <h6 style="color:#888; font-size:12px; margin-bottom:10px;">NEUER EINTRAG</h6>
+            <div class="row g-2">
+                <div class="col-6">
+                    <select id="type" class="form-select">
+                        <option value="gold">Gold</option>
+                        <option value="silver">Silber</option>
+                    </select>
                 </div>
-                <div class="col">
-                    <input type="number" id="buyPrice" class="form-control" placeholder="Einkauf (€)">
+                <div class="col-6">
+                    <input type="number" id="weight" class="form-control" placeholder="Gramm (g)" inputmode="decimal">
+                </div>
+                <div class="col-6">
+                    <input type="number" id="buyPrice" class="form-control" placeholder="Kaufpreis (€)" inputmode="decimal">
+                </div>
+                <div class="col-6">
+                    <input type="text" id="name" class="form-control" placeholder="Name (opt.)">
+                </div>
+                <div class="col-12 mt-2">
+                    <button onclick="add()" class="btn-gold">HINZUFÜGEN</button>
                 </div>
             </div>
-            <button onclick="addItem()" class="btn btn-dark w-100 mt-3">Hinzufügen</button>
         </div>
 
-        <div id="inventoryList">
-            </div>
+        <div class="label-small mt-4 mb-2 ms-2">DEIN BESTAND</div>
+        <div id="list"></div>
         
-        <button onclick="clearData()" class="btn btn-outline-danger btn-sm mt-4">Alles löschen</button>
+        <div class="text-center mt-5 mb-5">
+            <small onclick="wipe()" style="color:#444; text-decoration:underline; cursor:pointer;">Alles löschen</small>
+        </div>
     </div>
 
     <script>
-        // Preise pro Gramm (werden live geladen)
         let prices = { gold: 0, silver: 0 };
-        
-        // Laden beim Start
+
+        // Start
         window.onload = function() {
-            loadPrices();
-            renderList();
+            render();
+            fetchPrices();
         };
 
-        // 1. Live Preise holen (Nutzt CoinGecko API als Proxy für Gold/Silber)
-        async function loadPrices() {
+        // PREISE LADEN
+        async function fetchPrices() {
+            const status = document.getElementById('statusMsg');
+            const btn = document.getElementById('refreshBtn');
+            
             try {
-                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur');
-                const data = await response.json();
+                btn.style.transform = "rotate(180deg)";
+                status.innerText = "Lade Live-Kurse...";
                 
-                // Umrechnung: API gibt Preis pro Unze (oz). 1 oz = 31.1035 Gramm
-                prices.gold = data['pax-gold'].eur / 31.1035;
-                prices.silver = data['kinesis-silver'].eur / 31.1035;
+                // Wir nutzen CoinGecko
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&include_last_updated_at=true');
+                
+                if (!res.ok) throw new Error("Fehler");
 
-                document.getElementById('priceInfo').innerText = 
-                    `Gold: ${prices.gold.toFixed(2)} €/g | Silber: ${prices.silver.toFixed(2)} €/g`;
+                const data = await res.json();
+                prices.gold = data['pax-gold'].eur / 31.1035; 
+                prices.silver = data['kinesis-silver'].eur / 31.1035;
                 
-                renderList(); // Liste neu berechnen mit aktuellen Preisen
-            } catch (error) {
-                document.getElementById('priceInfo').innerText = "Preis-Update fehlgeschlagen. Prüfe Internet.";
+                status.innerText = `Gold: ${prices.gold.toFixed(2)}€/g | Silber: ${prices.silver.toFixed(2)}€/g`;
+                status.style.color = "#FFD700";
+                
+                render(); 
+            } catch (e) {
+                status.innerText = "Preis-Update fehlgeschlagen (Internet?)";
+                status.style.color = "#FF453A";
+            } finally {
+                btn.style.transform = "none";
             }
         }
 
-        // 2. Item hinzufügen
-        function addItem() {
-            const type = document.getElementById('metalType').value;
-            const name = document.getElementById('itemName').value || type;
-            const weight = parseFloat(document.getElementById('weight').value);
-            const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+        // MANUELLER REFRESH
+        function manualRefresh() {
+            fetchPrices();
+        }
 
-            if (!weight || !buyPrice) { alert("Bitte Gewicht und Preis eingeben!"); return; }
-
-            const item = { id: Date.now(), type, name, weight, buyPrice };
+        // HINZUFÜGEN
+        function add() {
+            // Komma zu Punkt Konvertierung für iPhone Tastatur
+            let wVal = document.getElementById('weight').value.replace(',', '.');
+            let pVal = document.getElementById('buyPrice').value.replace(',', '.');
             
-            // Speichern im Browser
-            let items = JSON.parse(localStorage.getItem('myMetals')) || [];
-            items.push(item);
-            localStorage.setItem('myMetals', JSON.stringify(items));
+            const w = parseFloat(wVal);
+            const p = parseFloat(pVal);
+            const t = document.getElementById('type').value;
+            const n = document.getElementById('name').value || (t==='gold'?'Gold':'Silber');
+
+            if (!w || !p) { alert("Bitte Gewicht und Preis eingeben."); return; }
+
+            const items = JSON.parse(localStorage.getItem('db')) || [];
+            items.push({ id: Date.now(), t, w, p, n });
+            localStorage.setItem('db', JSON.stringify(items));
             
             // Felder leeren
             document.getElementById('weight').value = '';
             document.getElementById('buyPrice').value = '';
+            document.getElementById('name').value = '';
             
-            renderList();
+            render();
         }
 
-        // 3. Liste anzeigen & Berechnen
-        function renderList() {
-            const items = JSON.parse(localStorage.getItem('myMetals')) || [];
-            const listDiv = document.getElementById('inventoryList');
-            listDiv.innerHTML = '';
+        // ANZEIGEN
+        function render() {
+            const items = JSON.parse(localStorage.getItem('db')) || [];
+            const list = document.getElementById('list');
+            list.innerHTML = '';
             
-            let grandTotal = 0;
+            let totalVal = 0;
             let totalInvest = 0;
 
-            items.forEach(item => {
-                // Aktueller Wert berechnen
-                const currentPricePerGram = item.type === 'gold' ? prices.gold : prices.silver;
-                const currentValue = item.weight * currentPricePerGram;
-                const profit = currentValue - item.buyPrice;
+            // Neueste zuerst
+            items.slice().reverse().forEach(i => {
+                const currentP = i.t === 'gold' ? prices.gold : prices.silver;
                 
-                grandTotal += currentValue;
-                totalInvest += item.buyPrice;
+                // Falls Preise 0 sind (offline), nimm Einkaufspreis als Platzhalter für Wert
+                let val = 0;
+                if(prices.gold > 0) {
+                    val = i.w * currentP;
+                } else {
+                    val = i.p; // Fallback damit nicht 0 steht
+                }
 
-                // HTML für die Karte erstellen
+                const profit = val - i.p;
+                
+                totalVal += val;
+                totalInvest += i.p;
+
                 const card = document.createElement('div');
-                card.className = 'card p-3';
+                card.className = 'card';
                 card.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="${item.type === 'gold' ? 'gold-text' : 'silver-text'}">
-                                ${item.type === 'gold' ? '● Gold' : '○ Silber'} <small class="text-muted">(${item.weight}g)</small>
-                            </h5>
-                            <small>${item.name}</small>
+                        <div class="d-flex align-items-center">
+                            <div style="font-size:22px; margin-right:12px;">${i.t==='gold'?'🟡':'⚪️'}</div>
+                            <div>
+                                <div style="font-weight:bold; font-size:16px;">${i.w}g <span style="color:#888; font-weight:normal; font-size:12px;">${i.n}</span></div>
+                                <div class="item-price-label">Gekauft für: ${i.p.toFixed(2)} €</div>
+                            </div>
                         </div>
+                        
                         <div class="text-end">
-                            <strong>${currentValue.toFixed(2)} €</strong><br>
-                            <small class="${profit >= 0 ? 'profit-plus' : 'profit-minus'}">
-                                ${profit >= 0 ? '+' : ''}${profit.toFixed(2)} €
-                            </small>
+                            <div style="font-weight:bold; font-size:16px;">${prices.gold > 0 ? val.toFixed(2) : '?'} €</div>
+                            <div style="font-size:13px;" class="${profit>=0 ? 'profit-plus':'profit-minus'}">
+                                ${profit>=0?'+':''}${profit.toFixed(2)} €
+                            </div>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between mt-2">
-                         <small class="text-muted">EK: ${item.buyPrice} €</small>
-                         <button onclick="deleteItem(${item.id})" class="btn btn-sm btn-light text-danger" style="font-size:0.7em;">Löschen</button>
+                    <div class="text-end mt-1">
+                        <span onclick="del(${i.id})" style="color:#444; font-size:18px; padding:5px; cursor:pointer;">&times;</span>
                     </div>
                 `;
-                listDiv.appendChild(card);
+                list.appendChild(card);
             });
 
-            // Gesamtsummen update
-            document.getElementById('totalValue').innerText = grandTotal.toFixed(2) + ' €';
-            const totalProfit = grandTotal - totalInvest;
-            const profitElem = document.getElementById('totalProfit');
-            profitElem.innerText = `Invest: ${totalInvest.toFixed(2)} € | Gewinn: ${totalProfit.toFixed(2)} €`;
-            profitElem.className = totalProfit >= 0 ? 'profit-plus' : 'profit-minus';
+            // Header Werte
+            document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
+            document.getElementById('totalInvest').innerText = 'Investiert: ' + totalInvest.toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
+
+            const totalProfit = totalVal - totalInvest;
+            const profElem = document.getElementById('profitDisplay');
+            
+            if(prices.gold > 0) {
+                profElem.innerHTML = `<span class="${totalProfit>=0?'profit-plus':'profit-minus'}">Gewinn: ${totalProfit>=0?'+':''}${totalProfit.toFixed(2)} €</span>`;
+            } else {
+                profElem.innerText = "Offline";
+            }
         }
 
-        // 4. Löschen
-        function deleteItem(id) {
-            let items = JSON.parse(localStorage.getItem('myMetals')) || [];
-            items = items.filter(i => i.id !== id);
-            localStorage.setItem('myMetals', JSON.stringify(items));
-            renderList();
+        // LÖSCHEN
+        function del(id) {
+            if(confirm("Eintrag löschen?")) {
+                let items = JSON.parse(localStorage.getItem('db')) || [];
+                items = items.filter(i => i.id !== id);
+                localStorage.setItem('db', JSON.stringify(items));
+                render();
+            }
         }
 
-        function clearData() {
-            if(confirm('Wirklich alles löschen?')) {
+        function wipe() {
+            if(confirm("ALLES löschen?")) {
                 localStorage.clear();
-                renderList();
+                render();
             }
         }
     </script>
