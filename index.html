@@ -7,112 +7,103 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* 1. BASIS SETUP */
+        /* 1. BASIS */
         html, body {
             height: 100%; margin: 0; padding: 0;
             background-color: #000000;
-            color: #ffffff;
-            font-family: -apple-system, sans-serif;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-size: 11px;
             overflow: hidden; 
             display: flex; flex-direction: column;
         }
 
-        /* FARBEN */
-        .text-green { color: #32d74b !important; font-weight: normal; } /* Normal weight, nicht mehr fett */
-        .text-red { color: #ff453a !important; font-weight: normal; }
-        .text-neutral { color: #888 !important; }
-        
-        /* 2. HEADER */
+        /* TYPOGRAFIE & FARBEN */
+        .text-green { color: #32d74b !important; }
+        .text-red { color: #ff453a !important; }
+        .text-neutral { color: #666 !important; }
+        .text-white { color: #ffffff !important; }
+        .text-label { color: #555; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* 2. HEADER: DAS NEUE DASHBOARD */
         .fixed-top-area {
             flex-shrink: 0; background: #000; z-index: 100;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #222;
         }
 
         .header-box { 
-            padding: 5px 10px; /* Noch weniger Rand */
+            padding: 10px 15px; 
             background: #050505;
         }
 
-        /* Zeile 1: Status & Spot & Auge */
-        .top-info-row { 
-            display: flex; justify-content: space-between; align-items: center; 
-            font-size: 10px; color: #666; margin-bottom: 2px;
-            border-bottom: 1px solid #1a1a1a; padding-bottom: 4px;
+        /* Oberste Leiste: Status | Ticker | Auge */
+        .top-meta-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; border-bottom: 1px solid #111; padding-bottom: 5px;
+        }
+        .spot-ticker { font-size: 10px; color: #888; font-family: monospace; }
+        
+        /* DAS GRID (Die Überraschung) */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Zwei gleich große Spalten */
+            gap: 15px;
+            margin-bottom: 12px;
         }
 
-        /* Großer Wert */
-        .big-value { 
-            font-size: 24px; font-weight: 700; color: #fff; 
-            letter-spacing: -0.5px; line-height: 1.1; margin-top: 4px; text-align: center;
+        .dash-group { display: flex; flex-direction: column; gap: 2px; }
+        
+        /* Zahlen Styles im Grid */
+        .dash-value-main { font-size: 16px; font-weight: 600; color: #fff; }
+        .dash-value-sub { font-size: 13px; font-weight: 400; color: #ccc; }
+        
+        /* Asset Leiste (Ganz unten im Header) */
+        .asset-bar {
+            display: flex; justify-content: space-between;
+            background: #0a0a0a; border-radius: 4px; padding: 4px 8px;
+            border: 1px solid #151515;
         }
+        .asset-item { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; }
 
-        /* Gleichmäßige Statistik-Zeile (Invest | Gewinn) */
-        .uniform-stats-row {
-            display: flex; justify-content: center; gap: 15px;
-            font-size: 11px; color: #aaa; margin-top: 2px; margin-bottom: 6px;
-        }
-
-        /* Prozent Boxen */
-        .dual-perf-container {
-            display: flex; gap: 6px; margin-bottom: 6px;
-        }
-        .perf-box {
-            flex: 1; background: #111; border: 1px solid #222; 
-            border-radius: 4px; padding: 3px; text-align: center;
-        }
-        .perf-label { font-size: 9px; color: #666; text-transform: uppercase; display: block; }
-        .perf-val { font-size: 12px; font-weight: bold; }
-
-        /* Details (Gold/Silber) */
-        .mini-detail-row {
-            display: flex; justify-content: space-between; 
-            font-size: 10px; color: #777; border-top: 1px solid #1a1a1a; padding-top: 4px;
-        }
-
-        /* 3. EINGABE */
-        .input-container { padding: 5px; background: #080808; border-top: 1px solid #1a1a1a; }
-        .input-row { display: flex; gap: 3px; align-items: center; }
+        /* 3. EINGABE (Ultra Minimal) */
+        .input-container { padding: 8px; background: #000; border-top: 1px solid #1a1a1a; }
+        .input-row { display: flex; gap: 4px; align-items: center; }
         
         .mini-input { 
-            background-color: #1a1a1a !important; border: 1px solid #333 !important; 
-            color: #fff !important; font-size: 11px !important; height: 26px !important;
-            padding: 0 5px !important; border-radius: 4px !important; width: 100%;
+            background-color: #111 !important; border: 1px solid #222 !important; 
+            color: #ddd !important; font-size: 11px !important; height: 28px !important;
+            padding: 0 8px !important; border-radius: 4px !important; width: 100%; transition: border 0.2s;
         }
+        .mini-input:focus { border-color: #444 !important; outline: none; }
+        
         .btn-add { 
-            background: #333; color: #ccc; border: 1px solid #444;
-            height: 26px; font-size: 10px; font-weight: 700; 
-            border-radius: 4px; width: 100%; padding: 0;
+            background: #222; color: #fff; border: 1px solid #333;
+            height: 28px; font-size: 14px; line-height: 1; font-weight: 400; 
+            border-radius: 4px; width: 100%; padding: 0; cursor: pointer;
         }
+        .btn-add:active { background: #444; }
 
-        /* 4. LISTE (KOMPAKTER) */
+        /* 4. LISTE (Clean Look) */
         .scrollable-list {
             flex-grow: 1; overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
             background: #000; padding-bottom: 40px;
         }
         .list-row { 
-            border-bottom: 1px solid #151515; 
-            padding: 3px 8px; /* Sehr schmal */
-            background: #000; 
+            border-bottom: 1px solid #111; padding: 8px 15px; background: #000; 
         }
-        
-        /* Schriftarten Tabelle */
-        .row-top { display: flex; justify-content: space-between; font-size: 12px; color: #ffffff; font-weight: 500; }
-        .row-bot { 
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 9px; color: #888; margin-top: 0px; /* Kein Abstand nach oben */
-        }
+        .row-main { display: flex; justify-content: space-between; font-size: 12px; color: #eee; margin-bottom: 2px; }
+        .row-sub { display: flex; justify-content: space-between; font-size: 10px; color: #555; }
 
         /* Buttons & Icons */
-        .icon-btn { background: none; border: none; color: #666; font-size: 14px; padding: 0; cursor: pointer; }
-        .status-badge { font-size: 9px; color: #555; border: 1px solid #222; padding: 1px 5px; border-radius: 3px; cursor: pointer;}
-        .del-btn { color: #444; font-size: 12px; margin-left: 10px; cursor: pointer; padding: 0 5px;}
+        .icon-btn { background: none; border: none; color: #555; font-size: 14px; padding: 0; cursor: pointer; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: #333; cursor: pointer;}
+        .del-btn { color: #333; font-size: 14px; margin-left: 10px; cursor: pointer; }
 
         /* Footer */
-        .footer-area { text-align: center; padding: 20px 10px; border-top: 1px solid #111; margin-top: 10px; }
-        .action-btn { background: #111; color: #aaa; border: 1px solid #333; padding: 6px; border-radius: 4px; font-size: 10px; width: 45%; margin: 2px; }
-        .start-btn { background: #1a1a1a; color: #FFD700; border: 1px solid #333; padding: 6px; border-radius: 4px; font-size: 10px; width: 92%; margin: 5px auto; display: block; }
+        .footer-area { text-align: center; padding: 20px 10px; border-top: 1px solid #111; margin-top: 20px; }
+        .action-btn { background: #0a0a0a; color: #666; border: 1px solid #222; padding: 6px 12px; border-radius: 4px; font-size: 10px; margin: 2px; }
+        .start-btn { background: #111; color: #FFD700; border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 10px; width: 100%; margin-bottom: 15px; display: block; }
         #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; display: none; margin-top: 10px; }
     </style>
 </head>
@@ -120,43 +111,60 @@
 
     <div class="fixed-top-area">
         <div class="header-box">
-            <div class="top-info-row">
-                <span id="statusBadge" class="status-badge" onclick="fetchPrices()">Verbinden...</span>
-                <span>
-                    1g: <span id="spotGold" style="color:#FFD700;">-</span> | <span id="spotSilver" style="color:#ccc;">-</span>
-                </span>
+            
+            <div class="top-meta-bar">
+                <div onclick="fetchPrices()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                    <div id="statusDot" class="status-dot"></div>
+                    <span id="statusText" style="font-size:9px; color:#444;">Connect</span>
+                </div>
+                <div class="spot-ticker">
+                    Au: <span id="spotGold" style="color:#FFD700;">-</span> • Ag: <span id="spotSilver" style="color:#aaa;">-</span>
+                </div>
                 <button onclick="togglePrivacy()" class="icon-btn" id="eyeBtn">👁️</button>
             </div>
-            
-            <div id="totalValue" class="big-value">••••••</div>
 
-            <div class="uniform-stats-row">
-                <span id="totalInvest">EK: •••</span> 
-                <span style="color:#444;">|</span>
-                <span id="totalProfitEuro">Gewinn: •••</span>
-            </div>
-
-            <div class="dual-perf-container">
-                <div class="perf-box">
-                    <span class="perf-label">Gesamt ROI</span>
-                    <span id="roiPerf" class="perf-val">0.00%</span>
+            <div class="dashboard-grid">
+                
+                <div class="dash-group">
+                    <div>
+                        <span class="text-label">Gesamtwert</span>
+                        <div id="totalValue" class="dash-value-main">••••</div>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <span class="text-label">Invest (EK)</span>
+                        <div id="totalInvest" class="dash-value-sub">••••</div>
+                    </div>
                 </div>
-                <div class="perf-box">
-                    <span class="perf-label">Trend (Reset)</span>
-                    <span id="trendPerf" class="perf-val">0.00%</span>
+
+                <div class="dash-group" style="text-align:right;">
+                    <div>
+                        <span class="text-label">Gewinn / ROI</span>
+                        <div id="profitBlock" class="dash-value-main">••••</div> </div>
+                    <div style="margin-top:8px;">
+                        <span class="text-label">Trend (Reset)</span>
+                        <div id="trendPerf" class="dash-value-sub">••••</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="asset-bar">
+                <div class="asset-item">
+                    <span style="color:#FFD700;">●</span> 
+                    Gold: <span id="goldSum" style="color:#ddd;">0g</span>
+                </div>
+                <div class="asset-item">
+                    Silber: <span id="silverSum" style="color:#ddd;">0g</span>
+                    <span style="color:#aaa;">●</span>
                 </div>
             </div>
 
-            <div class="mini-detail-row">
-                <span>Au: <span id="goldSum" style="color:#ddd;">0g</span> <span id="goldPerf">(0%)</span></span>
-                <span>Ag: <span id="silverSum" style="color:#ddd;">0g</span> <span id="silverPerf">(0%)</span></span>
-            </div>
         </div>
 
         <div class="input-container">
             <div class="input-row">
-                <div style="width: 20%;">
-                    <select id="type" class="mini-input">
+                <div style="width: 18%;">
+                    <select id="type" class="mini-input" style="color:#999 !important;">
                         <option value="gold">Au</option>
                         <option value="silver">Ag</option>
                     </select>
@@ -167,8 +175,8 @@
                 <div style="width: 20%;">
                     <input type="number" id="buyPrice" class="mini-input" placeholder="EK" inputmode="decimal">
                 </div>
-                <div style="width: 30%;">
-                    <input type="text" id="itemName" class="mini-input" placeholder="Bez.">
+                <div style="width: 32%;">
+                    <input type="text" id="itemName" class="mini-input" placeholder="Name">
                 </div>
                 <div style="width: 10%;">
                     <button onclick="add()" class="btn-add">+</button>
@@ -181,22 +189,23 @@
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="setBaseline()" class="start-btn">⏱️ Trend-Startpunkt setzen (0%)</button>
+            <button onclick="setBaseline()" class="start-btn">⏱️ Trend-Reset (0%)</button>
             
-            <p style="color:#444; font-size:9px; margin-top:10px; margin-bottom:5px;">BACKUP</p>
-            <button onclick="copyToClipboard()" class="action-btn">Kopieren</button>
-            <button onclick="pasteFromClipboard()" class="action-btn">Einfügen</button>
+            <p style="color:#333; font-size:9px; margin-bottom:5px;">DATA MNGT</p>
+            <button onclick="copyToClipboard()" class="action-btn">Copy</button>
+            <button onclick="pasteFromClipboard()" class="action-btn">Paste</button>
+            
             <textarea id="copyArea"></textarea>
 
-            <div style="margin-top:5px; opacity:0.4;">
+            <div style="margin-top:5px; opacity:0.3;">
                 <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
-                <button onclick="document.getElementById('fileInput').click()" class="action-btn" style="width:60%;">Datei Laden</button>
+                <button onclick="document.getElementById('fileInput').click()" class="action-btn" style="border:none;">File</button>
             </div>
 
             <br>
-            <span onclick="wipe()" style="font-size:9px; color:#333; cursor:pointer;">Reset</span>
+            <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#333;">V 14.0 (Kompakt)</span>
+            <span style="font-size:8px; color:#222;">V 15.0 (Pro Dashboard)</span>
         </div>
     </div>
 
@@ -212,15 +221,14 @@
             render();
             await fetchPrices();
 
-            // Auto-Refresh
             document.addEventListener("visibilitychange", () => {
                 if (document.visibilityState === "visible") fetchPrices();
             });
         }
 
         async function fetchPrices() {
-            const badge = document.getElementById('statusBadge');
-            badge.innerText = "Lade..."; badge.style.color = "orange"; badge.style.borderColor = "orange";
+            const dot = document.getElementById('statusDot');
+            dot.style.background = "orange";
             try {
                 const timestamp = new Date().getTime();
                 const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
@@ -229,15 +237,15 @@
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
                 
-                badge.innerText = "Online ●"; badge.style.color = "#4cd964"; badge.style.borderColor = "#4cd964";
+                dot.style.background = "#32d74b"; // Grün
                 render();
             } catch (e) {
-                badge.innerText = "Offline ↻"; badge.style.color = "#ff3b30"; badge.style.borderColor = "#ff3b30";
+                dot.style.background = "red";
             }
         }
 
         function togglePrivacy() { privacyMode = !privacyMode; updateEyeIcon(); render(); }
-        function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#666" : "#fff"; }
+        function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#666" : "#aaa"; }
         
         function fmt(num, suffix = '') {
             if (privacyMode) return "••••";
@@ -245,7 +253,7 @@
         }
 
         function setBaseline() {
-            if(!confirm("Trend auf 0% setzen?")) return;
+            if(!confirm("Trend-Reset auf 0%?")) return;
             const items = JSON.parse(localStorage.getItem('db')) || [];
             let currentTotal = 0;
             items.forEach(i => {
@@ -291,72 +299,78 @@
                 const itemProfit = val - i.p;
                 const itemPrefix = itemProfit >= 0 ? '+' : '';
                 const itemColor = itemProfit >= 0 ? 'text-green' : 'text-red';
-                const itemProfitText = itemPrefix + itemProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '€';
+                const itemProfitText = itemPrefix + itemProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
+                // LISTE RENDERN (Ultra Clean)
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 div.innerHTML = `
-                    <div class="row-top">
+                    <div class="row-main">
                         <span>
-                            <span style="color:${i.t==='gold'?'#FFD700':'#aaa'}; margin-right:4px;">●</span> 
-                            ${i.w}g <span style="font-weight:normal; color:#888;">${i.name}</span>
+                            <span style="color:${i.t==='gold'?'#FFD700':'#aaa'}; margin-right:6px;">●</span> 
+                            ${i.w}g <span style="color:#999;">${i.name}</span>
                         </span>
-                        <span style="color:#ffffff;">${fmt(val, ' €')}</span>
+                        <span style="font-weight:600;">${fmt(val, ' €')}</span>
                     </div>
-                    <div class="row-bot">
+                    <div class="row-sub">
+                        <span style="color:#555;">EK: ${fmt(i.p)}</span>
                         <span>
-                            EK: ${fmt(i.p, ' €')} 
-                            <span style="margin-left:6px;" class="${!privacyMode && prices.gold > 0 ? itemColor : 'text-neutral'}">
+                             <span class="${!privacyMode && prices.gold > 0 ? itemColor : 'text-neutral'}" style="margin-right:10px;">
                                 ${!privacyMode && prices.gold > 0 ? itemProfitText : ''}
                             </span>
+                            <span onclick="del(${i.id})" class="del-btn">×</span>
                         </span>
-                        <span onclick="del(${i.id})" class="del-btn">×</span>
                     </div>
                 `;
                 list.appendChild(div);
             });
 
-            // HEADER UPDATES
-            document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
-            document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest, ' €');
+            // --- HEADER DASHBOARD UPDATE ---
             
-            // SPOT PREISE
-            document.getElementById('spotGold').innerText = prices.gold > 0 ? prices.gold.toLocaleString('de-DE', {maximumFractionDigits:2}) + '€' : '-';
-            document.getElementById('spotSilver').innerText = prices.silver > 0 ? prices.silver.toLocaleString('de-DE', {maximumFractionDigits:2}) + '€' : '-';
-
-            // Gewinn in Euro (Gleich groß wie EK)
+            // 1. Gesamtwert & Invest
+            document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
+            document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
+            
+            // 2. Gewinn & ROI (Kombiniert in der rechten Spalte oben)
             const profitEuro = totalVal - totalInvest;
-            const pElem = document.getElementById('totalProfitEuro');
+            const pBox = document.getElementById('profitBlock');
+            
             if(privacyMode) {
-                pElem.innerText = "Gewinn: ••••"; pElem.className = "";
+                pBox.innerHTML = "••••"; pBox.className = "dash-value-main text-neutral";
             } else {
-                const pf = profitEuro >= 0 ? '+' : '';
-                pElem.innerText = "Gew: " + pf + profitEuro.toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
-                pElem.className = profitEuro >= 0 ? "text-green" : "text-red";
-            }
+                if(prices.gold > 0) {
+                     const pfPrefix = profitEuro >= 0 ? '+' : '';
+                     const pfClass = profitEuro >= 0 ? "text-green" : "text-red";
+                     
+                     // ROI berechnen
+                     let roiTxt = "0%";
+                     if(totalInvest > 0) {
+                         const roiVal = (profitEuro / totalInvest) * 100;
+                         roiTxt = (roiVal >= 0 ? '+' : '') + roiVal.toFixed(1) + "%";
+                     }
 
-            // PROZENT BOXEN
-            if(prices.gold > 0 && !privacyMode) {
-                const roi = calcPerf(totalVal, totalInvest);
-                const roiEl = document.getElementById('roiPerf');
-                roiEl.innerText = roi.text; roiEl.className = "perf-val " + roi.class;
-
-                if(baseline.active) {
-                    const trend = calcPerf(totalVal, baseline.totalVal);
-                    const trendEl = document.getElementById('trendPerf');
-                    trendEl.innerText = trend.text; trendEl.className = "perf-val " + trend.class;
+                     // Wir zeigen Euro fett und ROI dahinter normal
+                     pBox.innerHTML = `<span class="${pfClass}">${pfPrefix}${profitEuro.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})}€</span> <span style="font-size:12px; color:#888;">(${roiTxt})</span>`;
                 } else {
-                    document.getElementById('trendPerf').innerText = "0.00%";
-                    document.getElementById('trendPerf').className = "perf-val text-neutral";
+                    pBox.innerHTML = "Offline"; pBox.className = "dash-value-main text-neutral";
                 }
-            } else {
-                document.getElementById('roiPerf').innerText = privacyMode ? "••••" : "Offline";
-                document.getElementById('trendPerf').innerText = privacyMode ? "••••" : "Offline";
-                document.getElementById('roiPerf').className = "perf-val text-neutral";
-                document.getElementById('trendPerf').className = "perf-val text-neutral";
             }
 
-            // DETAILS
+            // 3. Trend (Rechts unten)
+            if(prices.gold > 0 && !privacyMode && baseline.active) {
+                const trend = calcPerf(totalVal, baseline.totalVal);
+                const tEl = document.getElementById('trendPerf');
+                tEl.innerText = trend.text; tEl.className = "dash-value-sub " + trend.class;
+            } else {
+                const tEl = document.getElementById('trendPerf');
+                tEl.innerText = privacyMode ? "••••" : (baseline.active ? "0.00%" : "Starten →");
+                tEl.className = "dash-value-sub text-neutral";
+            }
+
+            // 4. Spot & Assets
+            document.getElementById('spotGold').innerText = prices.gold > 0 ? Math.round(prices.gold)+'€' : '-';
+            document.getElementById('spotSilver').innerText = prices.silver > 0 ? prices.silver.toFixed(2)+'€' : '-';
+            
             document.getElementById('goldSum').innerText = privacyMode ? "••" : (sumGoldW.toLocaleString('de-DE') + 'g');
             document.getElementById('silverSum').innerText = privacyMode ? "••" : (sumSilverW.toLocaleString('de-DE') + 'g');
         }
