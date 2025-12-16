@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* 1. DESIGN: TIEFES SCHWARZ */
+        /* 1. DESIGN: TIEFES SCHWARZ & WEISSE SCHRIFT ERZWINGEN */
         body { 
             background-color: #000000 !important; 
             color: #ffffff !important; 
             font-family: -apple-system, sans-serif; 
             font-size: 11px; 
-            padding-bottom: 50px;
+            padding-bottom: 80px;
         }
 
-        /* HEADER: Winzig, alles in einer Zeile */
+        /* HEADER */
         .header-box { 
             background: #000; 
             border-bottom: 1px solid #222;
@@ -24,31 +24,25 @@
             position: sticky; top: 0; z-index: 100;
         }
         .header-row { display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Zahlen im Header */
         .val-main { font-size: 16px; font-weight: 700; color: white; }
         .val-sub { font-size: 10px; color: #777; margin-left: 5px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #333; margin-left: 5px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #333; margin-left: 5px; cursor: pointer;}
 
-        /* EINGABE: Extrem kompakt */
+        /* EINGABE */
         .input-row { 
-            background: #080808; 
-            padding: 5px; 
+            background: #080808; padding: 5px; 
             border-bottom: 1px solid #222;
             display: flex; gap: 4px; align-items: center;
         }
         
-        /* FIX FÜR WEISSE SCHRIFT AUF IPHONE */
+        /* INPUT FIX IPHONE */
         .mini-input { 
             background-color: #1a1a1a !important; 
             border: 1px solid #333 !important; 
             color: #ffffff !important; 
-            -webkit-text-fill-color: #ffffff !important; /* WICHTIG */
-            font-size: 11px !important; 
-            height: 26px !important; 
-            padding: 0 5px !important;
-            border-radius: 4px !important;
-            width: 100%;
+            -webkit-text-fill-color: #ffffff !important; 
+            font-size: 11px !important; height: 26px !important; 
+            padding: 0 5px !important; border-radius: 4px !important; width: 100%;
         }
         .mini-input:focus { border-color: #FFD700 !important; outline: none; }
         
@@ -58,12 +52,8 @@
             border-radius: 4px; width: 100%; padding: 0;
         }
 
-        /* LISTE: Sehr flach */
-        .list-row { 
-            border-bottom: 1px solid #151515; 
-            padding: 6px 10px; 
-            background: #000;
-        }
+        /* LISTE */
+        .list-row { border-bottom: 1px solid #151515; padding: 6px 10px; background: #000; }
         .row-top { display: flex; justify-content: space-between; font-size: 12px; color: #eee; }
         .row-bot { display: flex; justify-content: space-between; font-size: 10px; color: #555; margin-top: 1px; }
 
@@ -73,6 +63,12 @@
         .p-plus { color: #32d74b; }
         .p-minus { color: #ff453a; }
         .del-btn { color: #333; margin-left: 8px; font-size: 12px; cursor: pointer; padding: 2px 5px; }
+
+        /* FILE BUTTONS */
+        .file-btn {
+            background: #111; color: #fff; border: 1px solid #333;
+            padding: 5px 10px; border-radius: 4px; font-size: 10px; margin: 0 5px;
+        }
     </style>
 </head>
 <body>
@@ -113,8 +109,16 @@
 
     <div id="list"></div>
     
-    <div class="text-center mt-4">
-        <span onclick="wipe()" style="font-size:9px; color:#333; cursor:pointer;">RESET</span>
+    <div class="text-center mt-5" style="border-top:1px solid #111; padding-top:20px;">
+        <p style="color:#444; font-size:9px;">DATEI VERWALTUNG</p>
+        
+        <button onclick="downloadFile()" class="file-btn">↓ Datei speichern</button>
+        
+        <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
+        <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Datei laden</button>
+        
+        <br><br>
+        <span onclick="wipe()" style="font-size:9px; color:#333; cursor:pointer;">Reset</span>
     </div>
 
     <script>
@@ -128,22 +132,20 @@
         async function fetchPrices() {
             const dot = document.getElementById('statusDot');
             const pDisplay = document.getElementById('profitDisplay');
-            
-            dot.style.background = "orange"; // Lade-Farbe
+            dot.style.background = "orange";
 
             try {
-                // Zeitstempel gegen Cache-Probleme
                 const timestamp = new Date().getTime();
                 const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
                 
-                if (res.status === 429) throw new Error("429"); // Zu viele Klicks
+                if (res.status === 429) throw new Error("429");
                 if (!res.ok) throw new Error("Error");
 
                 const data = await res.json();
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
                 
-                dot.style.background = "#32d74b"; // Grün (Online)
+                dot.style.background = "#32d74b";
                 render();
             } catch (e) {
                 if(e.message === "429") {
@@ -159,21 +161,17 @@
         function add() {
             let wVal = document.getElementById('weight').value.replace(',', '.');
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
-            
             const w = parseFloat(wVal);
             const p = parseFloat(pVal);
             const t = document.getElementById('type').value;
-            // FIX: Variable korrekt benannt
             const name = document.getElementById('itemName').value || (t==='gold'?'Gold':'Silber');
 
             if (!w || !p) return;
 
             const items = JSON.parse(localStorage.getItem('db')) || [];
-            // FIX: Name als 'name' speichern
             items.push({ id: Date.now(), t, w, p, name });
             localStorage.setItem('db', JSON.stringify(items));
             
-            // Felder leeren
             document.getElementById('weight').value = '';
             document.getElementById('buyPrice').value = '';
             document.getElementById('itemName').value = '';
@@ -190,17 +188,13 @@
 
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
-                
-                // Wert berechnen (Offline-Schutz)
                 let val = i.p; 
                 if(prices.gold > 0) val = i.w * currentP;
-
                 const profit = val - i.p;
                 
                 totalVal += val;
                 totalInvest += i.p;
 
-                // Design der Zeile
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 div.innerHTML = `
@@ -224,18 +218,54 @@
                 list.appendChild(div);
             });
 
-            // Header Zahlen
             document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' €';
             document.getElementById('totalInvest').innerText = 'EK: ' + totalInvest.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' €';
             
             const totalProfit = totalVal - totalInvest;
             const pElem = document.getElementById('profitDisplay');
-            
             if(prices.gold > 0) {
                 pElem.innerHTML = `<span class="${totalProfit>=0?'p-plus':'p-minus'}">${totalProfit>=0?'+':''}${totalProfit.toFixed(2)} €</span>`;
-            } else if (pElem.innerText !== "Warte 1min...") {
-                pElem.innerText = "Lade...";
             }
+        }
+
+        // --- NEUE DATEI FUNKTIONEN ---
+        
+        // 1. Speichern (Download)
+        function downloadFile() {
+            const data = localStorage.getItem('db') || '[]';
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'depot_backup.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 2. Laden (Upload)
+        function uploadFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const json = JSON.parse(e.target.result);
+                    if(Array.isArray(json)) {
+                        localStorage.setItem('db', JSON.stringify(json));
+                        render();
+                        alert('Backup erfolgreich geladen!');
+                    } else {
+                        alert('Ungültige Datei.');
+                    }
+                } catch(err) {
+                    alert('Fehler beim Lesen der Datei.');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function del(id) {
