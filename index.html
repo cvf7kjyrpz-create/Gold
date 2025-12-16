@@ -7,125 +7,117 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* 1. LAYOUT & DESIGN */
+        /* 1. BASIS SETUP */
         html, body {
             height: 100%; margin: 0; padding: 0;
             background-color: #000000;
-            color: #b0b0b0; 
-            font-family: -apple-system, sans-serif;
-            font-size: 12px;
+            color: #ffffff; /* Generell weißer */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 11px; /* Etwas kleiner für mehr Platz */
             overflow: hidden; 
             display: flex; flex-direction: column;
         }
 
         /* FARBEN */
-        .text-green { color: #32d74b !important; font-weight: bold; }
-        .text-red { color: #ff453a !important; font-weight: bold; }
+        .text-green { color: #32d74b !important; font-weight: 700; }
+        .text-red { color: #ff453a !important; font-weight: 700; }
         .text-neutral { color: #888 !important; }
+        .text-white { color: #ffffff !important; }
 
-        /* 2. HEADER (Fixiert) */
+        /* 2. HEADER: SUPER KOMPAKT */
         .fixed-top-area {
             flex-shrink: 0; background: #000; z-index: 100;
-            border-bottom: 1px solid #222;
+            border-bottom: 1px solid #333;
         }
 
         .header-box { 
-            padding: 10px 20px 10px 20px; 
+            padding: 8px 12px; /* Wenig Innenabstand */
             background: #050505;
-            text-align: center; /* Alles zentriert für besseren Look */
         }
+
+        /* Obere Leiste (Status + Auge) */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
         
-        /* Top Bar (Status + Auge) */
-        .top-bar { display: flex; justify-content: space-between; margin-bottom: 5px; }
-
-        /* Großer Euro Wert */
+        /* Der riesige Euro Wert */
         .big-value { 
-            font-size: 32px; font-weight: 700; color: #e0e0e0; 
-            letter-spacing: -1px; line-height: 1.0; margin-top: 0px;
+            font-size: 26px; font-weight: 800; color: #fff; 
+            letter-spacing: -0.5px; line-height: 1.1; margin: 0;
         }
 
-        /* GESAMT PROZENT (Neu positioniert) */
-        .main-perf {
-            font-size: 16px; margin-top: 2px; margin-bottom: 8px;
+        /* Euro Gewinn Zeile */
+        .euro-profit-row {
+            font-size: 12px; margin-bottom: 8px; color: #aaa;
         }
 
-        /* Zeile für Invest & Gewinn (Euro) - Kleiner */
-        .stats-row { 
-            display: flex; justify-content: center; gap: 15px;
-            font-size: 11px; color: #666; 
-            border-bottom: 1px solid #151515; padding-bottom: 8px; margin-bottom: 8px;
+        /* Die zwei Prozent-Boxen (Gesamt vs Trend) */
+        .dual-perf-container {
+            display: flex; gap: 8px; margin-bottom: 8px;
+        }
+        .perf-box {
+            flex: 1; background: #111; border: 1px solid #222; 
+            border-radius: 4px; padding: 4px; text-align: center;
+        }
+        .perf-label { font-size: 9px; color: #666; text-transform: uppercase; display: block; }
+        .perf-val { font-size: 13px; font-weight: bold; }
+
+        /* Gold/Silber Details (ganz unten im Header) */
+        .mini-detail-row {
+            display: flex; justify-content: space-between; 
+            font-size: 10px; color: #777; border-top: 1px solid #1a1a1a; padding-top: 4px;
         }
 
-        /* Detail Boxen (Gold/Silber) */
-        .detail-row {
-            display: flex; justify-content: space-between;
-            text-align: left; /* Details wieder links/rechts */
-        }
-        .detail-col { 
-            display: flex; flex-direction: column; width: 48%; 
-            background: #111; padding: 6px; border-radius: 6px; border: 1px solid #222;
-        }
-        .metal-title { font-size: 10px; font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between; }
-        .metal-stats { font-size: 11px; color: #ccc; }
-        .metal-perf { font-size: 11px; margin-top: 2px; }
-
-        /* Buttons oben */
-        .icon-btn {
-            background: none; border: 1px solid #333; color: #888;
-            border-radius: 6px; padding: 2px 8px; font-size: 14px;
-            cursor: pointer;
-        }
-        .status-text {
-            font-size: 9px; color: #555; cursor: pointer; border: 1px solid #222; 
-            padding: 2px 6px; border-radius: 4px; display: inline-block;
-        }
-
-        /* 3. EINGABE */
+        /* 3. EINGABE (Sehr schmal) */
         .input-container {
-            padding: 10px; background: #080808; border-top: 1px solid #1a1a1a;
+            padding: 6px; background: #080808; border-top: 1px solid #1a1a1a;
         }
-        .input-row { display: flex; gap: 5px; align-items: center; }
+        .input-row { display: flex; gap: 4px; align-items: center; }
         
         .mini-input { 
-            background-color: #151515 !important; 
+            background-color: #1a1a1a !important; 
             border: 1px solid #333 !important; 
-            color: #ccc !important; 
-            -webkit-text-fill-color: #ccc !important; 
-            font-size: 12px !important; height: 32px !important; 
-            padding: 0 8px !important; border-radius: 6px !important; width: 100%;
+            color: #fff !important; 
+            font-size: 11px !important; height: 28px !important; /* Flacher */
+            padding: 0 5px !important; border-radius: 4px !important; width: 100%;
         }
-        .mini-input:focus { border-color: #666 !important; outline: none; }
-        
-        .btn-ok { 
+        .btn-add { 
             background: #333; color: #ccc; border: 1px solid #444;
-            height: 32px; font-size: 11px; font-weight: 700; 
-            border-radius: 6px; width: 100%; padding: 0; cursor: pointer;
+            height: 28px; font-size: 10px; font-weight: 700; 
+            border-radius: 4px; width: 100%; padding: 0;
         }
 
-        /* 4. LISTE */
+        /* 4. LISTE (Weiß & Schmal) */
         .scrollable-list {
             flex-grow: 1; overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            background: #000; padding-bottom: 60px;
+            background: #000; padding-bottom: 40px;
         }
-        .list-row { border-bottom: 1px solid #111; padding: 10px 15px; background: #000; }
-        .row-top { display: flex; justify-content: space-between; font-size: 13px; color: #ccc; font-weight: 500; }
-        .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 2px; }
+        
+        .list-row { 
+            border-bottom: 1px solid #151515; 
+            padding: 5px 10px; /* Extrem flache Zeilen */
+            background: #000; 
+        }
+        
+        /* Die Schrift in der Liste - Hellweiß */
+        .row-top { 
+            display: flex; justify-content: space-between; 
+            font-size: 13px; color: #ffffff; font-weight: 500; /* WICHTIG: Weiß */
+        }
+        .row-bot { 
+            display: flex; justify-content: space-between; 
+            font-size: 10px; color: #888; margin-top: 1px; 
+        }
+
+        /* Buttons & Icons */
+        .icon-btn { background: none; border: none; color: #666; font-size: 16px; padding: 0; cursor: pointer; }
+        .status-badge { font-size: 9px; color: #555; border: 1px solid #222; padding: 1px 5px; border-radius: 3px; }
+        .del-btn { color: #444; font-size: 14px; margin-left: 10px; cursor: pointer; }
 
         /* Footer */
         .footer-area { text-align: center; padding: 20px 10px; border-top: 1px solid #111; margin-top: 20px; }
-        .backup-btn {
-            background: #111; color: #aaa; border: 1px solid #333;
-            padding: 10px; border-radius: 6px; font-size: 11px; 
-            width: 45%; margin: 5px; cursor: pointer;
-        }
-        .start-btn {
-            background: #1a1a1a; color: #FFD700; border: 1px solid #333;
-            padding: 10px; border-radius: 6px; font-size: 11px; font-weight: bold;
-            width: 92%; margin: 10px auto; cursor: pointer; display: block;
-        }
-        .del-btn { color: #333; font-size: 16px; margin-left: 10px; padding: 0 5px; cursor: pointer; }
-        #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; font-size: 10px; display: none; margin-top: 10px; }
+        .action-btn { background: #111; color: #aaa; border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 10px; width: 45%; margin: 3px; }
+        .start-btn { background: #1a1a1a; color: #FFD700; border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 10px; width: 92%; margin: 5px auto; display: block; }
+        #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -133,39 +125,31 @@
     <div class="fixed-top-area">
         <div class="header-box">
             <div class="top-bar">
-                <span id="statusBadge" class="status-text" onclick="fetchPrices()">Verbinden...</span>
+                <span id="statusBadge" class="status-badge" onclick="fetchPrices()">Verbinden...</span>
                 <button onclick="togglePrivacy()" class="icon-btn" id="eyeBtn">👁️</button>
             </div>
             
             <div id="totalValue" class="big-value">••••••</div>
-            
-            <div id="totalPerf" class="main-perf">0.00 %</div>
 
-            <div class="stats-row">
-                <span id="totalInvest">EK: ••••••</span>
-                <span id="totalProfitEuro">Gewinn: ••••••</span>
+            <div class="euro-profit-row">
+                <span id="totalInvest">EK: •••</span> | 
+                <span id="totalProfitEuro">Gewinn: •••</span>
             </div>
 
-            <div class="detail-row">
-                <div class="detail-col">
-                    <div class="metal-title" style="color:#FFD700;">
-                        GOLD <span id="goldCount" style="color:#555;">(0)</span>
-                    </div>
-                    <div class="metal-stats">
-                        <span id="goldSum">0 g</span>
-                    </div>
-                    <div id="goldPerf" class="metal-perf">0.00 %</div>
+            <div class="dual-perf-container">
+                <div class="perf-box">
+                    <span class="perf-label">Gesamt ROI</span>
+                    <span id="roiPerf" class="perf-val">0.00%</span>
                 </div>
+                <div class="perf-box">
+                    <span class="perf-label">Trend (Heute)</span>
+                    <span id="trendPerf" class="perf-val">0.00%</span>
+                </div>
+            </div>
 
-                <div class="detail-col">
-                    <div class="metal-title" style="color:#aaa;">
-                        SILBER <span id="silverCount" style="color:#555;">(0)</span>
-                    </div>
-                    <div class="metal-stats">
-                        <span id="silverSum">0 g</span>
-                    </div>
-                    <div id="silverPerf" class="metal-perf">0.00 %</div>
-                </div>
+            <div class="mini-detail-row">
+                <span>Gold: <span id="goldSum" style="color:#ddd;">0g</span> <span id="goldPerf">(0%)</span></span>
+                <span>Silber: <span id="silverSum" style="color:#ddd;">0g</span> <span id="silverPerf">(0%)</span></span>
             </div>
         </div>
 
@@ -173,22 +157,22 @@
             <div class="input-row">
                 <div style="width: 20%;">
                     <select id="type" class="mini-input">
-                        <option value="gold">Gold</option>
-                        <option value="silver">Silber</option>
+                        <option value="gold">Au</option>
+                        <option value="silver">Ag</option>
                     </select>
                 </div>
-                <div style="width: 22%;">
-                    <input type="number" id="weight" class="mini-input" placeholder="Gr" inputmode="decimal">
+                <div style="width: 20%;">
+                    <input type="number" id="weight" class="mini-input" placeholder="g" inputmode="decimal">
                 </div>
-                <div style="width: 22%;">
-                    <input type="number" id="buyPrice" class="mini-input" placeholder="EK €" inputmode="decimal">
+                <div style="width: 20%;">
+                    <input type="number" id="buyPrice" class="mini-input" placeholder="EK" inputmode="decimal">
                 </div>
-                <div style="width: 36%;">
-                    <button onclick="add()" class="btn-ok">HINZUFÜGEN</button>
+                <div style="width: 30%;">
+                    <input type="text" id="itemName" class="mini-input" placeholder="Bez.">
                 </div>
-            </div>
-            <div class="input-row mt-2">
-                <input type="text" id="itemName" class="mini-input" placeholder="Beschreibung">
+                <div style="width: 10%;">
+                    <button onclick="add()" class="btn-add">+</button>
+                </div>
             </div>
         </div>
     </div>
@@ -197,31 +181,27 @@
         <div id="list"></div>
         
         <div class="footer-area">
-            <button onclick="setBaseline()" class="start-btn">⏱️ Startpunkt (0%) setzen</button>
-            <p style="font-size:9px; color:#444;">Prozentanzeige zählt ab diesem Klick.</p>
-
-            <p style="color:#444; font-size:10px; text-transform:uppercase; margin-top:20px;">Daten</p>
-            <button onclick="copyToClipboard()" class="backup-btn">📋 Kopieren</button>
-            <button onclick="pasteFromClipboard()" class="backup-btn">📥 Einfügen</button>
-            <textarea id="copyArea"></textarea>
+            <button onclick="setBaseline()" class="start-btn">⏱️ Trend-Startpunkt setzen (0%)</button>
             
-            <div style="margin-top:10px; opacity:0.5;">
-                <button onclick="downloadFile()" class="backup-btn" style="width:30%; font-size:9px;">↓ Datei</button>
+            <p style="color:#444; font-size:9px; margin-top:15px; margin-bottom:5px;">BACKUP</p>
+            <button onclick="copyToClipboard()" class="action-btn">Kopieren</button>
+            <button onclick="pasteFromClipboard()" class="action-btn">Einfügen</button>
+            <textarea id="copyArea"></textarea>
+
+            <div style="margin-top:10px; opacity:0.4;">
                 <input type="file" id="fileInput" style="display:none" accept="*/*" onchange="uploadFile(this)">
-                <button onclick="document.getElementById('fileInput').click()" class="backup-btn" style="width:30%; font-size:9px;">↑ Datei</button>
+                <button onclick="document.getElementById('fileInput').click()" class="action-btn" style="width:60%;">Datei Laden</button>
             </div>
 
             <br>
-            <span onclick="wipe()" style="font-size:10px; color:#222; cursor:pointer; text-decoration:underline;">Reset</span>
-            <br>
-            <span style="font-size:9px; color:#333;">V 11.0</span>
+            <span onclick="wipe()" style="font-size:10px; color:#333; cursor:pointer;">Reset</span>
         </div>
     </div>
 
     <script>
         let prices = { gold: 0, silver: 0 };
         let privacyMode = true; 
-        let baseline = { active: false, totalVal: 0, goldVal: 0, silverVal: 0 };
+        let baseline = { active: false, totalVal: 0 };
 
         async function init() {
             const savedBase = localStorage.getItem('baseline');
@@ -249,55 +229,37 @@
         }
 
         function togglePrivacy() { privacyMode = !privacyMode; updateEyeIcon(); render(); }
-        function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#888" : "#ccc"; }
+        function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#666" : "#fff"; }
         
         function fmt(num, suffix = '') {
-            if (privacyMode && suffix !== ' Stk') return "••••";
-            return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
-        }
-        function fmtWeight(num) {
             if (privacyMode) return "••••";
-            return num.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' g';
+            return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
         }
 
         function setBaseline() {
-            if(!confirm("Startpunkt für % auf 0 setzen?")) return;
+            if(!confirm("Trend auf 0% setzen?")) return;
             const items = JSON.parse(localStorage.getItem('db')) || [];
-            let currentTotal = 0; let currentGold = 0; let currentSilver = 0;
+            let currentTotal = 0;
             items.forEach(i => {
                 const p = i.t === 'gold' ? prices.gold : prices.silver;
-                const val = i.w * p;
-                currentTotal += val;
-                if(i.t === 'gold') currentGold += val; else currentSilver += val;
+                if(prices.gold > 0) currentTotal += i.w * p;
+                else currentTotal += i.p; // Fallback
             });
-            baseline = { active: true, totalVal: currentTotal, goldVal: currentGold, silverVal: currentSilver };
+            baseline = { active: true, totalVal: currentTotal };
             localStorage.setItem('baseline', JSON.stringify(baseline));
             render();
         }
 
-        function calcPerf(current, base, elemId) {
-            const el = document.getElementById(elemId);
-            if(privacyMode) { el.innerText = "••••"; el.className = "main-perf text-neutral"; return; }
-            
-            // Sonderfall: Wenn 0, dann 0%
-            if(!baseline.active || base === 0) { 
-                el.innerText = "0.00 %"; 
-                // Behalte die Basis-Klasse (z.B. main-perf oder metal-perf)
-                if(elemId === 'totalPerf') el.className = "main-perf text-neutral";
-                else el.className = "metal-perf text-neutral";
-                return; 
-            }
-            
+        // Prozent-Rechner
+        function calcPerf(current, base) {
+            if(base === 0) return { text: "0.00%", class: "text-neutral" };
             const diff = current - base;
             const percent = (diff / base) * 100;
             const prefix = percent >= 0 ? '+' : '';
-            
-            el.innerText = prefix + percent.toFixed(2) + " %";
-            
-            // Setze Klasse je nach ID (damit die Schriftgröße stimmt)
-            const baseClass = (elemId === 'totalPerf') ? "main-perf" : "metal-perf";
-            const colorClass = percent >= 0 ? "text-green" : "text-red";
-            el.className = baseClass + " " + colorClass;
+            return {
+                text: prefix + percent.toFixed(2) + "%",
+                class: percent >= 0 ? "text-green" : "text-red"
+            };
         }
 
         function render() {
@@ -305,74 +267,82 @@
             const list = document.getElementById('list');
             list.innerHTML = '';
             
-            let totalVal = 0;
-            let sumGoldW = 0; let goldValCurrent = 0; let countGold = 0;
-            let sumSilverW = 0; let silverValCurrent = 0; let countSilver = 0;
-            let totalInvest = 0;
+            let totalVal = 0; let totalInvest = 0;
+            let sumGoldW = 0; let sumSilverW = 0;
 
+            // Details für Gold/Silber Trend (Startpunkte müssten theoretisch auch einzeln gespeichert werden für 100% Genauigkeit, hier vereinfacht auf Gesamt)
+            
             items.slice().reverse().forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
-                if (i.t === 'gold') { 
-                    sumGoldW += i.w; countGold++;
-                    if(prices.gold > 0) goldValCurrent += i.w * currentP;
-                } else { 
-                    sumSilverW += i.w; countSilver++;
-                    if(prices.gold > 0) silverValCurrent += i.w * currentP;
-                }
+                if (i.t === 'gold') sumGoldW += i.w; else sumSilverW += i.w;
                 
                 let val = i.p; 
                 if(prices.gold > 0) val = i.w * currentP;
+                
                 totalVal += val;
                 totalInvest += i.p;
 
+                // LISTE RENDERN
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 div.innerHTML = `
                     <div class="row-top">
-                        <span style="display:flex; align-items:center;">
-                            <span style="color:${i.t==='gold'?'#FFD700':'#aaa'}; font-size:14px; margin-right:8px;">●</span> 
-                            <span>${i.w}g <span style="font-weight:normal; color:#555; font-size:12px; margin-left:4px;">${i.name}</span></span>
+                        <span>
+                            <span style="color:${i.t==='gold'?'#FFD700':'#aaa'}; margin-right:5px;">●</span> 
+                            ${i.w}g <span style="font-weight:normal; color:#888;">${i.name}</span>
                         </span>
-                        <span style="color:#ccc;">${fmt(val, ' €')}</span>
+                        <span style="color:#ffffff;">${fmt(val, ' €')}</span>
                     </div>
                     <div class="row-bot">
-                        <span style="margin-left: 20px;">EK: ${fmt(i.p, ' €')}</span>
+                        <span>EK: ${fmt(i.p, ' €')}</span>
                         <span onclick="del(${i.id})" class="del-btn">×</span>
                     </div>
                 `;
                 list.appendChild(div);
             });
 
-            // HEADER UPDATES
+            // 1. HEADER WERTE
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = 'EK: ' + fmt(totalInvest, ' €');
             
-            // ABSOLUTER GEWINN (EURO)
-            const totalProfit = totalVal - totalInvest;
-            const profElem = document.getElementById('totalProfitEuro');
-            if(prices.gold > 0) {
-                if(privacyMode) { profElem.innerText = "••••••"; profElem.className = ""; }
-                else {
-                    const prefix = totalProfit >= 0 ? '+' : '-';
-                    profElem.innerText = "Gewinn: " + prefix + Math.abs(totalProfit).toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
-                    profElem.className = totalProfit >= 0 ? 'text-green' : 'text-red';
-                }
-            } else { profElem.innerText = "Offline"; }
-
-            // DETAILS
-            document.getElementById('goldSum').innerText = fmtWeight(sumGoldW);
-            document.getElementById('goldCount').innerText = '(' + countGold + ')';
-            document.getElementById('silverSum').innerText = fmtWeight(sumSilverW);
-            document.getElementById('silverCount').innerText = '(' + countSilver + ')';
-
-            // PERFORMANCE PROZENTE (SEIT RESET)
-            if(prices.gold > 0) {
-                calcPerf(totalVal, baseline.totalVal, 'totalPerf');
-                calcPerf(goldValCurrent, baseline.goldVal, 'goldPerf');
-                calcPerf(silverValCurrent, baseline.silverVal, 'silverPerf');
+            // Gewinn in Euro
+            const profitEuro = totalVal - totalInvest;
+            const pElem = document.getElementById('totalProfitEuro');
+            if(privacyMode) {
+                pElem.innerText = "Gewinn: ••••"; pElem.className = "";
             } else {
-                document.getElementById('totalPerf').innerText = "Offline";
+                const pf = profitEuro >= 0 ? '+' : '';
+                pElem.innerText = "Gew: " + pf + profitEuro.toLocaleString('de-DE', {minimumFractionDigits: 2}) + ' €';
+                pElem.className = profitEuro >= 0 ? "text-green" : "text-red";
             }
+
+            // 2. PROZENT BOXEN (Das wichtigste Feature)
+            if(prices.gold > 0 && !privacyMode) {
+                // A) GESAMT ROI (Allgemein)
+                const roi = calcPerf(totalVal, totalInvest);
+                const roiEl = document.getElementById('roiPerf');
+                roiEl.innerText = roi.text; roiEl.className = "perf-val " + roi.class;
+
+                // B) TREND (Seit Reset)
+                if(baseline.active) {
+                    const trend = calcPerf(totalVal, baseline.totalVal);
+                    const trendEl = document.getElementById('trendPerf');
+                    trendEl.innerText = trend.text; trendEl.className = "perf-val " + trend.class;
+                } else {
+                    document.getElementById('trendPerf').innerText = "0.00%";
+                    document.getElementById('trendPerf').className = "perf-val text-neutral";
+                }
+            } else {
+                document.getElementById('roiPerf').innerText = privacyMode ? "••••" : "Offline";
+                document.getElementById('trendPerf').innerText = privacyMode ? "••••" : "Offline";
+                // Reset colors
+                document.getElementById('roiPerf').className = "perf-val text-neutral";
+                document.getElementById('trendPerf').className = "perf-val text-neutral";
+            }
+
+            // 3. DETAILS
+            document.getElementById('goldSum').innerText = privacyMode ? "••" : (sumGoldW.toLocaleString('de-DE') + 'g');
+            document.getElementById('silverSum').innerText = privacyMode ? "••" : (sumSilverW.toLocaleString('de-DE') + 'g');
         }
 
         function add() {
@@ -380,7 +350,7 @@
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
             const w = parseFloat(wVal); const p = parseFloat(pVal);
             const t = document.getElementById('type').value;
-            const name = document.getElementById('itemName').value || (t==='gold'?'Gold':'Silber');
+            const name = document.getElementById('itemName').value || (t==='gold'?'Au':'Ag');
             if (!w || !p) return;
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, name });
@@ -389,17 +359,22 @@
             render();
         }
 
-        // COPY & PASTE & FILE
         function copyToClipboard() {
             const data = localStorage.getItem('db') || '[]';
-            if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data).then(() => { alert("Kopiert!"); }).catch(err => { fallbackCopy(data); }); } 
-            else { fallbackCopy(data); }
+            if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data).then(() => alert("Kopiert!")); } 
+            else { const ta = document.getElementById("copyArea"); ta.style.display="block"; ta.value=data; ta.select(); document.execCommand('copy'); ta.style.display="none"; alert("Kopiert!"); }
         }
-        function fallbackCopy(text) { const ta = document.getElementById("copyArea"); ta.style.display = "block"; ta.value = text; ta.select(); document.execCommand('copy'); ta.style.display = "none"; alert("Kopiert!"); }
-        async function pasteFromClipboard() { try { const text = await navigator.clipboard.readText(); if(text) loadFromText(text); } catch (err) { const code = prompt("Code:"); if(code) loadFromText(code); } }
-        function loadFromText(jsonString) { try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert("Geladen!"); } } catch(e) { alert("Fehler"); } }
-        function downloadFile() { const data = localStorage.getItem('db') || '[]'; const date = new Date().toISOString().slice(0,10); const blob = new Blob([data], {type: 'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `depot_backup_${date}.txt`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-        function uploadFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const json = JSON.parse(e.target.result); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert('Geladen!'); } } catch(err) { alert("Fehler"); } }; reader.readAsText(file); }
+        async function pasteFromClipboard() {
+            try { const text = await navigator.clipboard.readText(); if(text) loadFromText(text); } 
+            catch (err) { const code = prompt("Code:"); if(code) loadFromText(code); }
+        }
+        function loadFromText(jsonString) {
+            try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert("Geladen!"); } } catch(e) { alert("Fehler"); }
+        }
+        function uploadFile(input) {
+            const file = input.files[0]; if (!file) return;
+            const reader = new FileReader(); reader.onload = function(e) { loadFromText(e.target.result); }; reader.readAsText(file);
+        }
         function del(id) { if(confirm('Löschen?')) { let items = JSON.parse(localStorage.getItem('db')) || []; items = items.filter(i => i.id !== id); localStorage.setItem('db', JSON.stringify(items)); render(); } }
         function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
 
