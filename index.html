@@ -3,122 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Depot</title>
+    <title>Gold Depot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* 1. DESIGN: TIEFES SCHWARZ & WEISSE SCHRIFT ERZWINGEN */
+        /* 1. BASIS DESIGN: TIEFES SCHWARZ */
         body { 
             background-color: #000000 !important; 
             color: #ffffff !important; 
-            font-family: -apple-system, sans-serif; 
-            font-size: 11px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            font-size: 12px; 
             padding-bottom: 80px;
         }
 
-        /* HEADER */
+        /* 2. HEADER: Modern & Großzügig (Nicht mehr so winzig) */
         .header-box { 
-            background: #000; 
+            background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
             border-bottom: 1px solid #222;
-            padding: 8px 10px; 
+            padding: 20px 20px 15px 20px; 
             position: sticky; top: 0; z-index: 100;
         }
-        .header-row { display: flex; justify-content: space-between; align-items: center; }
-        .val-main { font-size: 16px; font-weight: 700; color: white; }
-        .val-sub { font-size: 10px; color: #777; margin-left: 5px; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: #333; margin-left: 5px; cursor: pointer;}
-
-        /* EINGABE */
-        .input-row { 
-            background: #080808; padding: 5px; 
-            border-bottom: 1px solid #222;
-            display: flex; gap: 4px; align-items: center;
-        }
         
-        /* INPUT FIX IPHONE */
+        .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .app-title { font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+        
+        /* Die große Zahl */
+        .big-value { 
+            font-size: 34px; font-weight: 700; color: #FFD700; 
+            letter-spacing: -1px; line-height: 1.1; 
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.1);
+        }
+
+        /* Die Infos darunter (Gewinn / Invest) */
+        .stats-row { display: flex; gap: 15px; margin-top: 5px; font-size: 13px; color: #999; }
+        .profit-badge { 
+            background: #111; border: 1px solid #333; 
+            padding: 2px 8px; border-radius: 6px; font-weight: 600;
+        }
+
+        /* STATUS PUNKT */
+        .status-dot { 
+            width: 8px; height: 8px; border-radius: 50%; 
+            background: #333; cursor: pointer; display: inline-block;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* 3. EINGABE: Kompakt & Sauber */
+        .input-container {
+            background: #080808; border-bottom: 1px solid #222; padding: 10px;
+        }
+        .input-row { display: flex; gap: 5px; align-items: center; }
+        
+        /* FIX FÜR WEISSE SCHRIFT AUF IPHONE */
         .mini-input { 
             background-color: #1a1a1a !important; 
             border: 1px solid #333 !important; 
             color: #ffffff !important; 
             -webkit-text-fill-color: #ffffff !important; 
-            font-size: 11px !important; height: 26px !important; 
-            padding: 0 5px !important; border-radius: 4px !important; width: 100%;
+            font-size: 12px !important; height: 32px !important; 
+            padding: 0 8px !important; border-radius: 6px !important; width: 100%;
         }
         .mini-input:focus { border-color: #FFD700 !important; outline: none; }
         
         .btn-ok { 
             background: #FFD700; color: #000; border: none; 
-            height: 26px; font-size: 10px; font-weight: 800; 
-            border-radius: 4px; width: 100%; padding: 0;
+            height: 32px; font-size: 11px; font-weight: 800; 
+            border-radius: 6px; width: 100%; padding: 0; cursor: pointer;
         }
 
-        /* LISTE */
-        .list-row { border-bottom: 1px solid #151515; padding: 6px 10px; background: #000; }
-        .row-top { display: flex; justify-content: space-between; font-size: 12px; color: #eee; }
-        .row-bot { display: flex; justify-content: space-between; font-size: 10px; color: #555; margin-top: 1px; }
+        /* 4. LISTE */
+        .list-row { 
+            border-bottom: 1px solid #151515; padding: 10px 15px; background: #000; 
+            transition: background 0.2s;
+        }
+        .list-row:active { background: #111; }
+        .row-top { display: flex; justify-content: space-between; font-size: 14px; color: #eee; font-weight: 500; }
+        .row-bot { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-top: 3px; }
 
         /* HELFER */
         .c-gold { color: #FFD700; }
         .c-silver { color: #aaa; }
         .p-plus { color: #32d74b; }
         .p-minus { color: #ff453a; }
-        .del-btn { color: #333; margin-left: 8px; font-size: 12px; cursor: pointer; padding: 2px 5px; }
+        .del-btn { color: #333; font-size: 16px; margin-left: 10px; padding: 0 5px; }
 
         /* FILE BUTTONS */
         .file-btn {
             background: #111; color: #fff; border: 1px solid #333;
-            padding: 5px 10px; border-radius: 4px; font-size: 10px; margin: 0 5px;
+            padding: 8px 15px; border-radius: 6px; font-size: 11px; margin: 0 5px;
+            text-decoration: none; display: inline-block;
         }
     </style>
 </head>
 <body>
 
     <div class="header-box">
-        <div class="header-row">
-            <div>
-                <span class="val-main" id="totalValue">0 €</span>
-                <span class="val-sub" id="totalInvest">EK: 0 €</span>
-            </div>
-            <div style="text-align: right; display: flex; align-items: center;">
-                <div id="profitDisplay" style="font-size:11px; font-weight:bold; color:#555;">...</div>
-                <div id="statusDot" class="status-dot" onclick="fetchPrices()"></div>
-            </div>
+        <div class="header-top-row">
+            <span class="app-title">MEIN PORTFOLIO</span>
+            <div id="statusDot" class="status-dot" onclick="fetchPrices()"></div>
+        </div>
+        
+        <div id="totalValue" class="big-value">0,00 €</div>
+        
+        <div class="stats-row">
+            <span id="totalInvest">EK: 0 €</span>
+            <span id="profitDisplay" class="profit-badge" style="color:#555">...</span>
         </div>
     </div>
 
-    <div class="input-row">
-        <div style="width: 18%;">
-            <select id="type" class="mini-input">
-                <option value="gold">Gold</option>
-                <option value="silver">Silber</option>
-            </select>
+    <div class="input-container">
+        <div class="input-row">
+            <div style="width: 20%;">
+                <select id="type" class="mini-input">
+                    <option value="gold">Gold</option>
+                    <option value="silver">Silber</option>
+                </select>
+            </div>
+            <div style="width: 22%;">
+                <input type="number" id="weight" class="mini-input" placeholder="Gr" inputmode="decimal">
+            </div>
+            <div style="width: 22%;">
+                <input type="number" id="buyPrice" class="mini-input" placeholder="EK €" inputmode="decimal">
+            </div>
+            <div style="width: 36%;">
+                <button onclick="add()" class="btn-ok">HINZUFÜGEN</button>
+            </div>
         </div>
-        <div style="width: 20%;">
-            <input type="number" id="weight" class="mini-input" placeholder="Gr" inputmode="decimal">
-        </div>
-        <div style="width: 20%;">
-            <input type="number" id="buyPrice" class="mini-input" placeholder="EK €" inputmode="decimal">
-        </div>
-        <div style="width: 30%;">
-            <input type="text" id="itemName" class="mini-input" placeholder="Bez.">
-        </div>
-        <div style="width: 12%;">
-            <button onclick="add()" class="btn-ok">OK</button>
+        <div class="input-row mt-2">
+            <input type="text" id="itemName" class="mini-input" placeholder="Beschreibung (z.B. Krügerrand)">
         </div>
     </div>
 
     <div id="list"></div>
     
-    <div class="text-center mt-5" style="border-top:1px solid #111; padding-top:20px;">
-        <p style="color:#444; font-size:9px;">DATEI VERWALTUNG</p>
+    <div class="text-center mt-5" style="border-top:1px solid #111; padding-top:30px; opacity: 0.7;">
+        <p style="color:#444; font-size:10px; letter-spacing:1px;">DATENSICHERUNG</p>
         
-        <button onclick="downloadFile()" class="file-btn">↓ Datei speichern</button>
+        <button onclick="downloadFile()" class="file-btn">↓ Speichern</button>
         
         <input type="file" id="fileInput" style="display:none" onchange="uploadFile(this)">
-        <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Datei laden</button>
+        <button onclick="document.getElementById('fileInput').click()" class="file-btn">↑ Laden</button>
         
         <br><br>
-        <span onclick="wipe()" style="font-size:9px; color:#333; cursor:pointer;">Reset</span>
+        <span onclick="wipe()" style="font-size:10px; color:#333; cursor:pointer; text-decoration:underline;">Alles zurücksetzen</span>
     </div>
 
     <script>
@@ -145,12 +172,12 @@
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
                 
-                dot.style.background = "#32d74b";
+                dot.style.background = "#32d74b"; // Grün
                 render();
             } catch (e) {
                 if(e.message === "429") {
                     dot.style.background = "red";
-                    pDisplay.innerText = "Warte 1min...";
+                    pDisplay.innerText = "Warte kurz...";
                 } else {
                     dot.style.background = "red";
                     pDisplay.innerText = "Offline";
@@ -199,17 +226,17 @@
                 div.className = 'list-row';
                 div.innerHTML = `
                     <div class="row-top">
-                        <span>
-                            <span class="${i.t==='gold'?'c-gold':'c-silver'}">●</span> 
-                            <b>${i.w}g</b> <span style="font-weight:normal; color:#888;">${i.name}</span>
+                        <span style="display:flex; align-items:center;">
+                            <span class="${i.t==='gold'?'c-gold':'c-silver'}" style="font-size:18px; margin-right:8px;">●</span> 
+                            <span>${i.w}g <span style="font-weight:normal; color:#888; font-size:12px; margin-left:4px;">${i.name}</span></span>
                         </span>
-                        <span>${prices.gold > 0 ? val.toFixed(2) : '?'} €</span>
+                        <span>${prices.gold > 0 ? val.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '?'} €</span>
                     </div>
                     <div class="row-bot">
-                        <span>EK: ${i.p.toFixed(2)} €</span>
+                        <span style="margin-left: 24px;">EK: ${i.p.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €</span>
                         <span>
                             <span class="${profit>=0?'p-plus':'p-minus'}">
-                                ${profit>=0?'+':''}${profit.toFixed(2)} €
+                                ${profit>=0?'+':''}${profit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} €
                             </span>
                             <span onclick="del(${i.id})" class="del-btn">×</span>
                         </span>
@@ -218,34 +245,36 @@
                 list.appendChild(div);
             });
 
-            document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' €';
-            document.getElementById('totalInvest').innerText = 'EK: ' + totalInvest.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' €';
+            // Formatierung der großen Zahlen
+            document.getElementById('totalValue').innerText = totalVal.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+            document.getElementById('totalInvest').innerText = 'Invest: ' + totalInvest.toLocaleString('de-DE', {minimumFractionDigits: 0, maximumFractionDigits: 0}) + ' €';
             
             const totalProfit = totalVal - totalInvest;
             const pElem = document.getElementById('profitDisplay');
             if(prices.gold > 0) {
-                pElem.innerHTML = `<span class="${totalProfit>=0?'p-plus':'p-minus'}">${totalProfit>=0?'+':''}${totalProfit.toFixed(2)} €</span>`;
+                pElem.innerText = (totalProfit>=0?'+':'') + totalProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+                pElem.className = "profit-badge " + (totalProfit>=0?'p-plus':'p-minus');
+                pElem.style.borderColor = (totalProfit>=0?'#32d74b':'#ff453a');
             }
         }
 
-        // --- NEUE DATEI FUNKTIONEN ---
-        
-        // 1. Speichern (Download)
+        // --- DATEI FUNKTIONEN ---
         function downloadFile() {
             const data = localStorage.getItem('db') || '[]';
+            // Datum im Dateinamen
+            const date = new Date().toISOString().slice(0,10);
             const blob = new Blob([data], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'depot_backup.json';
+            a.download = `depot_${date}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
 
-        // 2. Laden (Upload)
         function uploadFile(input) {
             const file = input.files[0];
             if (!file) return;
@@ -269,7 +298,7 @@
         }
 
         function del(id) {
-            if(confirm('Löschen?')) {
+            if(confirm('Eintrag löschen?')) {
                 let items = JSON.parse(localStorage.getItem('db')) || [];
                 items = items.filter(i => i.id !== id);
                 localStorage.setItem('db', JSON.stringify(items));
@@ -278,7 +307,7 @@
         }
 
         function wipe() {
-            if(confirm('Alles löschen?')) { localStorage.clear(); render(); }
+            if(confirm('Wirklich alles löschen?')) { localStorage.clear(); render(); }
         }
 
         init();
