@@ -113,8 +113,8 @@
         
         /* Edit & Delete Buttons */
         .action-icon { cursor: pointer; margin-left: 8px; font-size: 12px; }
-        .edit-btn { color: #666; } /* Stift Farbe */
-        .del-btn { color: #444; }   /* Kreuz Farbe */
+        .edit-btn { color: #666; } 
+        .del-btn { color: #444; }
 
         /* Footer */
         .footer-area { text-align: center; padding: 15px 10px; border-top: 1px solid #111; margin-top: 10px; }
@@ -122,10 +122,9 @@
         .start-btn { background: #111; color: #FFD700; border: 1px solid #333; padding: 8px; border-radius: 4px; font-size: 10px; width: 100%; margin-bottom: 10px; display: block; }
         #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; display: none; margin-top: 10px; }
 
-        /* --- MODAL (POPUP) STYLES --- */
+        /* MODAL */
         .modal-overlay {
-            display: none; /* Versteckt am Anfang */
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 1000;
             justify-content: center; align-items: center;
         }
@@ -141,9 +140,7 @@
             border-radius: 4px; font-size: 14px;
         }
         .modal-btns { display: flex; gap: 10px; margin-top: 10px; }
-        .modal-btn {
-            flex: 1; padding: 10px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer;
-        }
+        .modal-btn { flex: 1; padding: 10px; border-radius: 4px; border: none; font-weight: bold; cursor: pointer; }
         .btn-cancel { background: #333; color: #ccc; }
         .btn-save { background: #FFD700; color: #000; }
 
@@ -240,7 +237,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 18.0 (Edit)</span>
+            <span style="font-size:8px; color:#222;">V 19.0 (Always-Trend)</span>
         </div>
     </div>
 
@@ -248,16 +245,13 @@
         <div class="modal-content">
             <div class="modal-title">Eintrag Bearbeiten</div>
             <input type="hidden" id="editId">
-            
             <select id="editType" class="modal-input">
                 <option value="gold">Gold (Au)</option>
                 <option value="silver">Silber (Ag)</option>
             </select>
-            
             <input type="number" id="editWeight" class="modal-input" placeholder="Gewicht (g)" inputmode="decimal">
             <input type="number" id="editPrice" class="modal-input" placeholder="Einkaufspreis (€)" inputmode="decimal">
             <input type="text" id="editName" class="modal-input" placeholder="Beschreibung">
-
             <div class="modal-btns">
                 <button onclick="closeModal()" class="modal-btn btn-cancel">Abbruch</button>
                 <button onclick="saveEdit()" class="modal-btn btn-save">Speichern</button>
@@ -328,41 +322,32 @@
             };
         }
 
-        // --- EDIT FUNKTIONEN ---
+        // EDIT
         function edit(id) {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const item = items.find(i => i.id === id);
             if(!item) return;
-
             document.getElementById('editId').value = id;
             document.getElementById('editType').value = item.t;
             document.getElementById('editWeight').value = item.w;
             document.getElementById('editPrice').value = item.p;
             document.getElementById('editName').value = item.name;
-
             document.getElementById('editModal').style.display = 'flex';
         }
-
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-
+        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
         function saveEdit() {
             const id = parseInt(document.getElementById('editId').value);
             const t = document.getElementById('editType').value;
             const w = parseFloat(document.getElementById('editWeight').value.replace(',', '.'));
             const p = parseFloat(document.getElementById('editPrice').value.replace(',', '.'));
             const name = document.getElementById('editName').value;
-
             if(!w || !p) { alert("Bitte Werte eingeben"); return; }
-
             let items = JSON.parse(localStorage.getItem('db')) || [];
             const index = items.findIndex(i => i.id === id);
             if(index > -1) {
                 items[index] = { id, t, w, p, name };
                 localStorage.setItem('db', JSON.stringify(items));
-                render();
-                closeModal();
+                render(); closeModal();
             }
         }
 
@@ -432,6 +417,7 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
             
+            // Gewinn & ROI (Bleibt versteckt im Privacy Mode)
             const profitEuro = totalVal - totalInvest;
             const pBox = document.getElementById('profitBlock');
             if(privacyMode) {
@@ -449,19 +435,23 @@
                 } else { pBox.innerHTML = "Offline"; pBox.className = "dash-value-main text-neutral"; }
             }
 
-            if(prices.gold > 0 && !privacyMode && baseline.active) {
+            // TREND (JETZT IMMER SICHTBAR!)
+            // Wir prüfen nicht mehr auf 'privacyMode', sondern zeigen es immer an, wenn Preise da sind.
+            if(prices.gold > 0 && baseline.active) {
                 const trend = calcPerf(totalVal, baseline.totalVal);
                 const tEl = document.getElementById('trendPerf');
                 tEl.innerText = trend.text; tEl.className = "dash-value-sub " + trend.class;
             } else {
                 const tEl = document.getElementById('trendPerf');
-                tEl.innerText = privacyMode ? "••••" : (baseline.active ? "0.00%" : "Start →");
+                tEl.innerText = baseline.active ? "0.00%" : "Start →";
                 tEl.className = "dash-value-sub text-neutral";
             }
 
+            // SPOT TICKER (Immer sichtbar)
             document.getElementById('spotGold').innerText = prices.gold > 0 ? Math.round(prices.gold)+'€' : '-';
             document.getElementById('spotSilver').innerText = prices.silver > 0 ? prices.silver.toFixed(2)+'€' : '-';
             
+            // ASSETS (Versteckt im Privacy Mode)
             if (privacyMode) {
                 document.getElementById('goldInfo').innerText = "Gold: ••";
                 document.getElementById('silverInfo').innerText = "Silber: ••";
