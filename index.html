@@ -35,13 +35,12 @@
             background: #050505;
         }
 
-        /* Top Bar - NEU GESTALTET */
+        /* Top Bar */
         .top-meta-bar {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 6px;
         }
         
-        /* Der Spot Preis in der Mitte */
         .spot-ticker { 
             font-size: 12px; color: #fff; font-family: -apple-system, sans-serif; font-weight: bold;
             text-align: center; flex-grow: 1;
@@ -68,7 +67,7 @@
         .perf-title { color: #555; font-size: 9px; text-transform: uppercase; width: 45px; }
         .perf-data { text-align: right; flex-grow: 1; }
 
-        /* Asset Leiste (Gramm Anzeige) */
+        /* Asset Leiste */
         .asset-bar {
             display: flex; justify-content: space-between;
             background: #0a0a0a; border-radius: 4px; padding: 6px 8px;
@@ -208,7 +207,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 28.0 (Spot Focus)</span>
+            <span style="font-size:8px; color:#222;">V 29.0 (Day Always-On)</span>
         </div>
     </div>
 
@@ -262,7 +261,6 @@
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
 
                 dot.style.background = "#32d74b";
-                
                 updateAnchors();
                 render();
             } catch (e) { 
@@ -287,21 +285,13 @@
             const currentTotal = getCurrentTotal();
             let changed = false;
 
-            if(!anchors.day || anchors.day.date !== todayStr) {
-                anchors.day = { val: currentTotal, date: todayStr }; changed = true;
-            }
+            if(!anchors.day || anchors.day.date !== todayStr) { anchors.day = { val: currentTotal, date: todayStr }; changed = true; }
             const isMonday = now.getDay() === 1;
-            if(!anchors.week || (isMonday && anchors.week.date !== todayStr) || getDaysDiff(anchors.week.date) > 7) {
-                 anchors.week = { val: currentTotal, date: todayStr }; changed = true;
-            }
+            if(!anchors.week || (isMonday && anchors.week.date !== todayStr) || getDaysDiff(anchors.week.date) > 7) { anchors.week = { val: currentTotal, date: todayStr }; changed = true; }
             const thisMonthStr = todayStr.substring(0, 7);
-            if(!anchors.month || anchors.month.date.substring(0, 7) !== thisMonthStr) {
-                anchors.month = { val: currentTotal, date: todayStr }; changed = true;
-            }
+            if(!anchors.month || anchors.month.date.substring(0, 7) !== thisMonthStr) { anchors.month = { val: currentTotal, date: todayStr }; changed = true; }
             const thisYearStr = todayStr.substring(0, 4);
-            if(!anchors.year || anchors.year.date.substring(0, 4) !== thisYearStr) {
-                anchors.year = { val: currentTotal, date: todayStr }; changed = true;
-            }
+            if(!anchors.year || anchors.year.date.substring(0, 4) !== thisYearStr) { anchors.year = { val: currentTotal, date: todayStr }; changed = true; }
 
             if(changed) localStorage.setItem('anchors_v26', JSON.stringify(anchors));
         }
@@ -338,7 +328,6 @@
             list.innerHTML = '';
             
             let totalVal = 0; let totalInvest = 0;
-            let valGoldTotal = 0; let valSilverTotal = 0;
             let sumGoldW = 0; let countGold = 0;
             let sumSilverW = 0; let countSilver = 0;
             let lastType = null;
@@ -348,9 +337,7 @@
                 let val = i.p; 
                 if(prices.gold > 0) {
                     val = i.w * currentP;
-                    if (i.t === 'gold') valGoldTotal += val; else valSilverTotal += val;
                 }
-                
                 if (i.t === 'gold') { sumGoldW += i.w; countGold++; } 
                 else { sumSilverW += i.w; countSilver++; }
 
@@ -398,13 +385,12 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
 
-            // SPOT PREISE (OBEN MITTE)
+            // SPOT PREISE
             if(prices.gold > 0) {
                 document.getElementById('spotGold').innerText = prices.gold.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + "€/g";
                 document.getElementById('spotSilver').innerText = prices.silver.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + "€/g";
             } else {
-                document.getElementById('spotGold').innerText = "-";
-                document.getElementById('spotSilver').innerText = "-";
+                document.getElementById('spotGold').innerText = "-"; document.getElementById('spotSilver').innerText = "-";
             }
 
             // PERFORMANCE
@@ -414,55 +400,58 @@
             const pMonthEl = document.getElementById('profitMonth');
             const pYearEl = document.getElementById('profitYear');
 
-            if(privacyMode) {
-                pTotalEl.innerText = "••••"; pTotalEl.className = "perf-data text-neutral";
-                pDayEl.innerText = "••••"; pDayEl.className = "perf-data text-neutral";
-                pWeekEl.innerText = "••••"; pWeekEl.className = "perf-data text-neutral";
-                pMonthEl.innerText = "••••"; pMonthEl.className = "perf-data text-neutral";
-                pYearEl.innerText = "••••"; pYearEl.className = "perf-data text-neutral";
-            } else if (prices.gold > 0) {
-                const profitTotalEuro = totalVal - totalInvest;
-                let profitTotalPercent = 0;
-                if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
-                pTotalEl.innerHTML = getChangeHtml(profitTotalEuro, profitTotalPercent);
+            // Berechnungen vorziehen
+            let dDay = {euro:0, pct:0};
 
+            if (prices.gold > 0) {
                 const calcPerf = (anchor) => {
                     if(!anchor) return {euro:0, pct:0};
                     const euro = totalVal - anchor.val;
                     const pct = anchor.val > 0 ? (euro / anchor.val) * 100 : 0;
                     return {euro, pct};
                 };
+                dDay = calcPerf(anchors.day);
+                
+                // RENDER LOGIK
+                if (privacyMode) {
+                    // Privacy AN: Nur Tag % zeigen
+                    pTotalEl.innerHTML = "••••";
+                    pWeekEl.innerHTML = "••••";
+                    pMonthEl.innerHTML = "••••";
+                    pYearEl.innerHTML = "••••";
+                    
+                    // TAG SPEZIAL
+                    const prefix = dDay.pct >= 0 ? '+' : '';
+                    const css = dDay.pct >= 0 ? 'text-green' : 'text-red';
+                    pDayEl.innerHTML = `<span class="${css}" style="font-weight:bold;">${prefix}${dDay.pct.toFixed(2)}%</span>`;
 
-                const dDay = calcPerf(anchors.day); pDayEl.innerHTML = getChangeHtml(dDay.euro, dDay.pct);
-                const dWeek = calcPerf(anchors.week); pWeekEl.innerHTML = getChangeHtml(dWeek.euro, dWeek.pct);
-                const dMonth = calcPerf(anchors.month); pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
-                const dYear = calcPerf(anchors.year); pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
+                    document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> Gold: ••`;
+                    document.getElementById('silverInfo').innerHTML = `Silber: •• <span style="color:#aaa;">●</span>`;
+                } else {
+                    // Privacy AUS: Alles zeigen
+                    const profitTotalEuro = totalVal - totalInvest;
+                    let profitTotalPercent = 0;
+                    if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
+                    pTotalEl.innerHTML = getChangeHtml(profitTotalEuro, profitTotalPercent);
+
+                    pDayEl.innerHTML = getChangeHtml(dDay.euro, dDay.pct);
+                    
+                    const dWeek = calcPerf(anchors.week); pWeekEl.innerHTML = getChangeHtml(dWeek.euro, dWeek.pct);
+                    const dMonth = calcPerf(anchors.month); pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
+                    const dYear = calcPerf(anchors.year); pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
+
+                    document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> <span style="font-weight:bold; color:#fff;">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>`;
+                    document.getElementById('silverInfo').innerHTML = `<span style="font-weight:bold; color:#fff;">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span> <span style="color:#aaa;">●</span>`;
+                }
+
             } else {
                 pTotalEl.innerText = "Init..."; pDayEl.innerText = "Init..."; pWeekEl.innerText = "Init..."; pMonthEl.innerText = "Init..."; pYearEl.innerText = "Init...";
-            }
-
-            // ASSETS (GRAMM ANZEIGE)
-            if (privacyMode) {
-                document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> Gold: ••`;
-                document.getElementById('silverInfo').innerHTML = `Silber: •• <span style="color:#aaa;">●</span>`;
-            } else {
-                document.getElementById('goldInfo').innerHTML = `
-                    <span style="color:#FFD700;">●</span> 
-                    <span style="font-weight:bold; color:#fff;">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>
-                `;
-                document.getElementById('silverInfo').innerHTML = `
-                    <span style="font-weight:bold; color:#fff;">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span>
-                    <span style="color:#aaa;">●</span>
-                `;
             }
         }
 
         function togglePrivacy() { privacyMode = !privacyMode; updateEyeIcon(); render(); }
         function updateEyeIcon() { const btn = document.getElementById('eyeBtn'); btn.innerText = privacyMode ? '👁️' : '🙈'; btn.style.color = privacyMode ? "#666" : "#aaa"; }
-        function fmt(num, suffix = '') {
-            if (privacyMode) return "••••";
-            return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
-        }
+        function fmt(num, suffix = '') { if (privacyMode) return "••••"; return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix; }
 
         function add() {
             let wVal = document.getElementById('weight').value.replace(',', '.');
@@ -472,10 +461,7 @@
             const name = document.getElementById('itemName').value || (t==='gold'?'Au':'Ag');
             if (!w || !p) return;
 
-            if(prices.gold > 0) {
-                const currentP = t === 'gold' ? prices.gold : prices.silver;
-                adjustAnchors(w * currentP);
-            }
+            if(prices.gold > 0) { const currentP = t === 'gold' ? prices.gold : prices.silver; adjustAnchors(w * currentP); }
 
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, name });
@@ -487,66 +473,39 @@
         function edit(id) {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const item = items.find(i => i.id === id); if(!item) return;
-            document.getElementById('editId').value = id;
-            document.getElementById('editType').value = item.t;
-            document.getElementById('editWeight').value = item.w;
-            document.getElementById('editPrice').value = item.p;
-            document.getElementById('editName').value = item.name;
-            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editId').value = id; document.getElementById('editType').value = item.t;
+            document.getElementById('editWeight').value = item.w; document.getElementById('editPrice').value = item.p;
+            document.getElementById('editName').value = item.name; document.getElementById('editModal').style.display = 'flex';
         }
         function closeModal() { document.getElementById('editModal').style.display = 'none'; }
         
         function saveEdit() {
-            const id = parseInt(document.getElementById('editId').value);
-            const t = document.getElementById('editType').value;
-            const w = parseFloat(document.getElementById('editWeight').value.replace(',', '.'));
-            const p = parseFloat(document.getElementById('editPrice').value.replace(',', '.'));
+            const id = parseInt(document.getElementById('editId').value); const t = document.getElementById('editType').value;
+            const w = parseFloat(document.getElementById('editWeight').value.replace(',', '.')); const p = parseFloat(document.getElementById('editPrice').value.replace(',', '.'));
             const name = document.getElementById('editName').value;
             if(!w || !p) { alert("Bitte Werte eingeben"); return; }
             let items = JSON.parse(localStorage.getItem('db')) || [];
             const index = items.findIndex(i => i.id === id);
             
             if(index > -1) { 
-                const oldItem = items[index];
-                const currentP = oldItem.t === 'gold' ? prices.gold : prices.silver;
-                const oldVal = oldItem.w * currentP;
-                const newVal = w * currentP;
+                const oldItem = items[index]; const currentP = oldItem.t === 'gold' ? prices.gold : prices.silver;
+                const oldVal = oldItem.w * currentP; const newVal = w * currentP;
                 adjustAnchors(newVal - oldVal);
-
-                items[index] = { id, t, w, p, name }; 
-                localStorage.setItem('db', JSON.stringify(items)); 
-                render(); closeModal(); 
+                items[index] = { id, t, w, p, name }; localStorage.setItem('db', JSON.stringify(items)); render(); closeModal(); 
             }
         }
 
         function del(id) { 
             if(confirm('Löschen?')) { 
-                let items = JSON.parse(localStorage.getItem('db')) || []; 
-                const item = items.find(i => i.id === id);
-                if(item && prices.gold > 0) {
-                    const currentP = item.t === 'gold' ? prices.gold : prices.silver;
-                    adjustAnchors(-(item.w * currentP));
-                }
-                items = items.filter(i => i.id !== id); 
-                localStorage.setItem('db', JSON.stringify(items)); 
-                render(); 
+                let items = JSON.parse(localStorage.getItem('db')) || []; const item = items.find(i => i.id === id);
+                if(item && prices.gold > 0) { const currentP = item.t === 'gold' ? prices.gold : prices.silver; adjustAnchors(-(item.w * currentP)); }
+                items = items.filter(i => i.id !== id); localStorage.setItem('db', JSON.stringify(items)); render(); 
             } 
         }
 
         function copyToClipboard() { const data = localStorage.getItem('db') || '[]'; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data).then(() => alert("Kopiert!")); } else { const ta = document.getElementById("copyArea"); ta.style.display="block"; ta.value=data; ta.select(); document.execCommand('copy'); ta.style.display="none"; alert("Kopiert!"); } }
         async function pasteFromClipboard() { try { const text = await navigator.clipboard.readText(); if(text) loadFromText(text); } catch (err) { const code = prompt("Code:"); if(code) loadFromText(code); } }
-        function loadFromText(jsonString) { 
-            try { 
-                const json = JSON.parse(jsonString); 
-                if(Array.isArray(json)) { 
-                    localStorage.setItem('db', JSON.stringify(json)); 
-                    localStorage.removeItem('anchors_v26');
-                    anchors = { day: null, week: null, month: null, year: null };
-                    fetchPrices(); 
-                    alert("Geladen!"); 
-                } 
-            } catch(e) { alert("Fehler"); } 
-        }
+        function loadFromText(jsonString) { try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); localStorage.removeItem('anchors_v26'); anchors = { day: null, week: null, month: null, year: null }; fetchPrices(); alert("Geladen!"); } } catch(e) { alert("Fehler"); } }
         function uploadFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { loadFromText(e.target.result); }; reader.readAsText(file); }
         function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
 
