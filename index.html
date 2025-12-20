@@ -41,7 +41,7 @@
             margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 6px;
         }
         
-        /* Spot Ticker (Oben Mitte) */
+        /* Spot Ticker */
         .spot-ticker { 
             font-size: 12px; color: #fff; font-family: -apple-system, sans-serif; font-weight: bold;
             text-align: center; flex-grow: 1;
@@ -68,7 +68,7 @@
         .perf-title { color: #555; font-size: 9px; text-transform: uppercase; width: 45px; }
         .perf-data { text-align: right; flex-grow: 1; }
 
-        /* Asset Leiste (Unten - NEU DESIGNED) */
+        /* Asset Leiste (Unten - OPTIMIERT) */
         .asset-bar {
             display: flex; justify-content: space-between;
             background: #0a0a0a; border-radius: 4px; padding: 6px 8px;
@@ -76,11 +76,14 @@
             margin-top: 5px;
         }
         .asset-item { 
-            font-size: 11px; color: #ddd; display: flex; align-items: center; gap: 5px; 
-            font-family: -apple-system, sans-serif; /* Einheitliche Schrift */
+            font-size: 10px; /* Etwas kleiner damit es passt */
+            color: #ccc; 
+            display: flex; align-items: center; gap: 4px; 
+            white-space: nowrap; /* Verhindert Umbruch */
         }
-        .asset-val { font-weight: bold; color: #fff; }
-        .asset-sep { color: #444; margin: 0 2px; }
+        /* Der Euro Wert wird hervorgehoben */
+        .asset-euro { color: #fff; font-weight: 700; }
+        .asset-gram { color: #888; }
 
         /* 3. EINGABE */
         .input-container { padding: 5px; background: #000; border-top: 1px solid #1a1a1a; }
@@ -213,7 +216,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 31.0 (Value & Weight)</span>
+            <span style="font-size:8px; color:#222;">V 32.0 (Elegant Fit)</span>
         </div>
     </div>
 
@@ -369,7 +372,6 @@
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 
-                // STEALTH LOGIK LISTE
                 const displayWeight = privacyMode ? "••" : i.w + "g";
                 const displayName = privacyMode ? "••••" : i.name;
                 const displayVal = privacyMode ? "••••" : val.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
@@ -417,7 +419,6 @@
             const pMonthEl = document.getElementById('profitMonth');
             const pYearEl = document.getElementById('profitYear');
 
-            // Berechnungen vorziehen
             let dDay = {euro:0, pct:0};
 
             if (prices.gold > 0) {
@@ -429,11 +430,9 @@
                 };
                 dDay = calcPerf(anchors.day);
                 
-                // RENDER LOGIK
                 if (privacyMode) {
                     pTotalEl.innerHTML = "••••"; pWeekEl.innerHTML = "••••"; pMonthEl.innerHTML = "••••"; pYearEl.innerHTML = "••••";
                     
-                    // TAG SPEZIAL
                     const prefix = dDay.pct >= 0 ? '+' : '';
                     const css = dDay.pct >= 0 ? 'text-green' : 'text-red';
                     pDayEl.innerHTML = `<span class="${css}" style="font-weight:bold;">${prefix}${dDay.pct.toFixed(2)}%</span>`;
@@ -452,17 +451,15 @@
                     const dMonth = calcPerf(anchors.month); pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
                     const dYear = calcPerf(anchors.year); pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
 
-                    // HIER IST DIE NEUE ANZEIGE MIT WERT
+                    // OPTIMIERTE ANZEIGE NEBENEINANDER
                     document.getElementById('goldInfo').innerHTML = `
                         <span style="color:#FFD700;">●</span> 
-                        <span class="asset-val">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>
-                        <span class="asset-sep">|</span>
-                        <span class="asset-val">${valGoldTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})} €</span>
+                        <span class="asset-gram">${sumGoldW.toLocaleString('de-DE')}g</span>
+                        <span class="asset-euro">${valGoldTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})}€</span>
                     `;
                     document.getElementById('silverInfo').innerHTML = `
-                        <span class="asset-val">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span>
-                        <span class="asset-sep">|</span>
-                        <span class="asset-val">${valSilverTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})} €</span>
+                        <span class="asset-gram">${sumSilverW.toLocaleString('de-DE')}g</span>
+                        <span class="asset-euro">${valSilverTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})}€</span>
                         <span style="color:#aaa;">●</span>
                     `;
                 }
