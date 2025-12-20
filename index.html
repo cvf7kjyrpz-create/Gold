@@ -54,9 +54,9 @@
         .dash-value-main { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.1; }
         .dash-value-sub { font-size: 13px; font-weight: 400; color: #ccc; }
         
-        /* Allocation Bar (NEU) */
+        /* Allocation Bar (Verteilung nach Wert) */
         .alloc-bar-container {
-            height: 4px; width: 100%; background: #222; border-radius: 2px; overflow: hidden; display: flex; margin-top: 5px;
+            height: 6px; width: 100%; background: #222; border-radius: 3px; overflow: hidden; display: flex; margin-top: 8px;
         }
         .alloc-gold { background-color: #FFD700; height: 100%; }
         .alloc-silver { background-color: #aaa; height: 100%; }
@@ -70,14 +70,14 @@
         .perf-title { color: #555; font-size: 9px; text-transform: uppercase; width: 45px; }
         .perf-data { text-align: right; flex-grow: 1; }
 
-        /* Asset Leiste */
+        /* Asset Leiste (Gramm Anzeige) */
         .asset-bar {
             display: flex; justify-content: space-between;
-            background: #0a0a0a; border-radius: 4px; padding: 2px 6px;
+            background: #0a0a0a; border-radius: 4px; padding: 4px 6px;
             border: 1px solid #151515;
-            margin-top: 8px;
+            margin-top: 5px;
         }
-        .asset-item { font-size: 10px; color: #888; display: flex; align-items: center; gap: 5px; }
+        .asset-item { font-size: 11px; color: #ddd; display: flex; align-items: center; gap: 6px; }
 
         /* 3. EINGABE */
         .input-container { padding: 5px; background: #000; border-top: 1px solid #1a1a1a; }
@@ -188,13 +188,11 @@
             </div>
 
             <div class="asset-bar">
-                <div class="asset-item">
-                    <span style="color:#FFD700;">●</span> 
-                    <span id="goldInfo" style="color:#ddd;">Gold: 0g</span>
+                <div class="asset-item" id="goldInfo">
+                    <span style="color:#FFD700;">●</span> Gold: 0g
                 </div>
-                <div class="asset-item">
-                    <span id="silverInfo" style="color:#ddd;">Silber: 0g</span>
-                    <span style="color:#aaa;">●</span>
+                <div class="asset-item" id="silverInfo">
+                    Silber: 0g <span style="color:#aaa;">●</span>
                 </div>
             </div>
         </div>
@@ -238,7 +236,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 26.0 (Real-Time + Alloc)</span>
+            <span style="font-size:8px; color:#222;">V 27.0 (Gramm Fokus)</span>
         </div>
     </div>
 
@@ -264,12 +262,11 @@
         let prices = { gold: 0, silver: 0 };
         let privacyMode = true; 
         
-        // ANCHORS (Die "Merkzettel" für Tag, Woche, Monat, Jahr)
-        // Format: { val: 12345.67, date: 'YYYY-MM-DD' }
+        // ANCHORS (Die "Merkzettel")
         let anchors = { day: null, week: null, month: null, year: null };
 
         async function init() {
-            const savedAnchors = localStorage.getItem('anchors_v26');
+            const savedAnchors = localStorage.getItem('anchors_v26'); // Kompatibel mit v26
             if(savedAnchors) anchors = JSON.parse(savedAnchors);
 
             updateEyeIcon();
@@ -298,7 +295,6 @@
                 const now = new Date();
                 txt.innerText = "Online (" + now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ")";
                 
-                // NACH PREIS-UPDATE: ANCHOR-CHECK
                 updateAnchors();
                 render();
             } catch (e) { 
@@ -317,39 +313,26 @@
             return total;
         }
 
-        // KERN-LOGIK: ECHTE ZEIT-TRACKING
         function updateAnchors() {
             const now = new Date();
-            const todayStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+            const todayStr = now.toISOString().split('T')[0];
             const currentTotal = getCurrentTotal();
             let changed = false;
 
-            // 1. DAY (Reset wenn Datum anders)
             if(!anchors.day || anchors.day.date !== todayStr) {
-                anchors.day = { val: currentTotal, date: todayStr };
-                changed = true;
+                anchors.day = { val: currentTotal, date: todayStr }; changed = true;
             }
-
-            // 2. WEEK (Reset wenn Montag und Datum anders)
-            // Simpel: Wenn letzter Anchor älter als 7 Tage ODER heute Montag und Anchor nicht von heute
             const isMonday = now.getDay() === 1;
             if(!anchors.week || (isMonday && anchors.week.date !== todayStr) || getDaysDiff(anchors.week.date) > 7) {
-                 anchors.week = { val: currentTotal, date: todayStr };
-                 changed = true;
+                 anchors.week = { val: currentTotal, date: todayStr }; changed = true;
             }
-
-            // 3. MONTH (Reset wenn Monat anders)
-            const thisMonthStr = todayStr.substring(0, 7); // YYYY-MM
+            const thisMonthStr = todayStr.substring(0, 7);
             if(!anchors.month || anchors.month.date.substring(0, 7) !== thisMonthStr) {
-                anchors.month = { val: currentTotal, date: todayStr };
-                changed = true;
+                anchors.month = { val: currentTotal, date: todayStr }; changed = true;
             }
-
-            // 4. YEAR (Reset wenn Jahr anders)
-            const thisYearStr = todayStr.substring(0, 4); // YYYY
+            const thisYearStr = todayStr.substring(0, 4);
             if(!anchors.year || anchors.year.date.substring(0, 4) !== thisYearStr) {
-                anchors.year = { val: currentTotal, date: todayStr };
-                changed = true;
+                anchors.year = { val: currentTotal, date: todayStr }; changed = true;
             }
 
             if(changed) localStorage.setItem('anchors_v26', JSON.stringify(anchors));
@@ -360,8 +343,6 @@
             return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
         }
 
-        // WICHTIG: Wenn wir kaufen/verkaufen, müssen wir die Anchors anpassen,
-        // sonst denkt die App, der Kaufpreis wäre "Gewinn".
         function adjustAnchors(euroDiff) {
             if(anchors.day) anchors.day.val += euroDiff;
             if(anchors.week) anchors.week.val += euroDiff;
@@ -378,8 +359,6 @@
 
         function render() {
             let items = JSON.parse(localStorage.getItem('db')) || [];
-            
-            // Sortierung
             items.sort((a, b) => {
                 if (a.t !== b.t) return a.t === 'gold' ? -1 : 1;
                 const nameA = a.name.toLowerCase(); const nameB = b.name.toLowerCase();
@@ -451,19 +430,16 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
 
-            // ALLOCATION BAR UPDATE
+            // ALLOCATION BAR
             if(totalVal > 0 && !privacyMode) {
                 const goldPct = (valGoldTotal / totalVal) * 100;
                 const silverPct = 100 - goldPct;
-                document.getElementById('allocBar').innerHTML = `
-                    <div class="alloc-gold" style="width: ${goldPct}%"></div>
-                    <div class="alloc-silver" style="width: ${silverPct}%"></div>
-                `;
+                document.getElementById('allocBar').innerHTML = `<div class="alloc-gold" style="width: ${goldPct}%"></div><div class="alloc-silver" style="width: ${silverPct}%"></div>`;
             } else {
                 document.getElementById('allocBar').innerHTML = `<div style="width:100%; background:#222;"></div>`;
             }
 
-            // PERFORMANCE ROWS
+            // PERFORMANCE
             const pTotalEl = document.getElementById('profitTotal');
             const pDayEl = document.getElementById('profitDay');
             const pWeekEl = document.getElementById('profitWeek');
@@ -477,13 +453,11 @@
                 pMonthEl.innerText = "••••"; pMonthEl.className = "perf-data text-neutral";
                 pYearEl.innerText = "••••"; pYearEl.className = "perf-data text-neutral";
             } else if (prices.gold > 0) {
-                // 1. TOTAL
                 const profitTotalEuro = totalVal - totalInvest;
                 let profitTotalPercent = 0;
                 if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
                 pTotalEl.innerHTML = getChangeHtml(profitTotalEuro, profitTotalPercent);
 
-                // Helper für Time-Tracker
                 const calcPerf = (anchor) => {
                     if(!anchor) return {euro:0, pct:0};
                     const euro = totalVal - anchor.val;
@@ -491,30 +465,33 @@
                     return {euro, pct};
                 };
 
-                const dDay = calcPerf(anchors.day);
-                pDayEl.innerHTML = getChangeHtml(dDay.euro, dDay.pct);
-
-                const dWeek = calcPerf(anchors.week);
-                pWeekEl.innerHTML = getChangeHtml(dWeek.euro, dWeek.pct);
-
-                const dMonth = calcPerf(anchors.month);
-                pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
-                
-                const dYear = calcPerf(anchors.year);
-                pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
-
+                const dDay = calcPerf(anchors.day); pDayEl.innerHTML = getChangeHtml(dDay.euro, dDay.pct);
+                const dWeek = calcPerf(anchors.week); pWeekEl.innerHTML = getChangeHtml(dWeek.euro, dWeek.pct);
+                const dMonth = calcPerf(anchors.month); pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
+                const dYear = calcPerf(anchors.year); pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
             } else {
-                pTotalEl.innerText = "Init..."; pDayEl.innerText = "Init..."; 
-                pWeekEl.innerText = "Init..."; pMonthEl.innerText = "Init..."; pYearEl.innerText = "Init...";
+                pTotalEl.innerText = "Init..."; pDayEl.innerText = "Init..."; pWeekEl.innerText = "Init..."; pMonthEl.innerText = "Init..."; pYearEl.innerText = "Init...";
             }
 
-            // ASSETS TEXT
+            // ASSETS (GRAMM ANZEIGE - KORRIGIERT)
             if (privacyMode) {
-                document.getElementById('goldInfo').innerText = "Gold: ••";
-                document.getElementById('silverInfo').innerText = "Silber: ••";
+                document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> Gold: ••`;
+                document.getElementById('silverInfo').innerHTML = `Silber: •• <span style="color:#aaa;">●</span>`;
             } else {
-                document.getElementById('goldInfo').innerText = `Gold: ${sumGoldW.toLocaleString('de-DE')}g (${Math.round((valGoldTotal/totalVal)*100)}%)`;
-                document.getElementById('silverInfo').innerText = `Silber: ${sumSilverW.toLocaleString('de-DE')}g (${Math.round((valSilverTotal/totalVal)*100)}%)`;
+                // HIER IST DIE ÄNDERUNG: FETT GRAMM
+                let gPct = totalVal>0 ? (valGoldTotal/totalVal)*100 : 0;
+                let sPct = totalVal>0 ? (valSilverTotal/totalVal)*100 : 0;
+
+                document.getElementById('goldInfo').innerHTML = `
+                    <span style="color:#FFD700;">●</span> 
+                    <span style="font-weight:bold; color:#fff;">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>
+                    <span style="font-size:9px; color:#666; margin-left:2px;">(${gPct.toFixed(0)}%)</span>
+                `;
+                document.getElementById('silverInfo').innerHTML = `
+                    <span style="font-weight:bold; color:#fff;">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span>
+                    <span style="font-size:9px; color:#666; margin-left:2px;">(${sPct.toFixed(0)}%)</span>
+                    <span style="color:#aaa;">●</span>
+                `;
             }
         }
 
@@ -525,7 +502,6 @@
             return num.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
         }
 
-        // ADD: Anchor-Adjustment logic
         function add() {
             let wVal = document.getElementById('weight').value.replace(',', '.');
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
@@ -534,23 +510,18 @@
             const name = document.getElementById('itemName').value || (t==='gold'?'Au':'Ag');
             if (!w || !p) return;
 
-            // ANCHOR ADJUSTMENT: Wir tun so, als ob dieses Item schon immer da war (für den Trend),
-            // indem wir den aktuellen Wert des neuen Items auf die Anchors addieren.
             if(prices.gold > 0) {
                 const currentP = t === 'gold' ? prices.gold : prices.silver;
-                const marketVal = w * currentP;
-                adjustAnchors(marketVal);
+                adjustAnchors(w * currentP);
             }
 
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, name });
             localStorage.setItem('db', JSON.stringify(items));
             document.getElementById('weight').value = ''; document.getElementById('buyPrice').value = ''; document.getElementById('itemName').value = '';
-            
             render();
         }
 
-        // EDIT
         function edit(id) {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const item = items.find(i => i.id === id); if(!item) return;
@@ -574,15 +545,11 @@
             const index = items.findIndex(i => i.id === id);
             
             if(index > -1) { 
-                // Complex diff logic for anchors omitted for simplicity in edit, 
-                // assuming edits are small corrections. Ideally calculate deltaValue and adjustAnchors.
-                // Simplified:
                 const oldItem = items[index];
                 const currentP = oldItem.t === 'gold' ? prices.gold : prices.silver;
                 const oldVal = oldItem.w * currentP;
                 const newVal = w * currentP;
-                const diff = newVal - oldVal;
-                adjustAnchors(diff);
+                adjustAnchors(newVal - oldVal);
 
                 items[index] = { id, t, w, p, name }; 
                 localStorage.setItem('db', JSON.stringify(items)); 
@@ -596,8 +563,7 @@
                 const item = items.find(i => i.id === id);
                 if(item && prices.gold > 0) {
                     const currentP = item.t === 'gold' ? prices.gold : prices.silver;
-                    const val = item.w * currentP;
-                    adjustAnchors(-val); // Wert aus Anchors entfernen
+                    adjustAnchors(-(item.w * currentP));
                 }
                 items = items.filter(i => i.id !== id); 
                 localStorage.setItem('db', JSON.stringify(items)); 
@@ -612,11 +578,10 @@
                 const json = JSON.parse(jsonString); 
                 if(Array.isArray(json)) { 
                     localStorage.setItem('db', JSON.stringify(json)); 
-                    // Anchors resetten bei Import
                     localStorage.removeItem('anchors_v26');
                     anchors = { day: null, week: null, month: null, year: null };
-                    fetchPrices(); // Trigger Anchor Init
-                    alert("Geladen! Tracking startet neu."); 
+                    fetchPrices(); 
+                    alert("Geladen!"); 
                 } 
             } catch(e) { alert("Fehler"); } 
         }
