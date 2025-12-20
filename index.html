@@ -45,7 +45,7 @@
         /* DASHBOARD GRID */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1.3fr; /* Rechts breiter */
+            grid-template-columns: 1fr 1.4fr; /* Rechts breiter für Performance Tabelle */
             gap: 15px;
             margin-bottom: 8px;
         }
@@ -57,9 +57,9 @@
         /* Performance Zeilen */
         .perf-row {
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 11px; border-bottom: 1px solid #111; padding-bottom: 2px; margin-bottom: 2px;
+            font-size: 11px; border-bottom: 1px solid #111; padding-bottom: 3px; margin-bottom: 3px;
         }
-        .perf-row:last-child { border-bottom: none; margin-bottom: 0; }
+        .perf-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .perf-title { color: #555; font-size: 9px; text-transform: uppercase; width: 45px; }
         .perf-data { text-align: right; flex-grow: 1; }
 
@@ -97,13 +97,11 @@
         .row-sub { display: flex; justify-content: space-between; font-size: 10px; color: #555; margin-top: 0px; line-height: 1.2; }
         .group-divider { background: #080808; color: #444; font-size: 8px; padding: 2px 10px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #151515; margin-top: 0; }
 
-        /* Icons */
+        /* Icons & Footer */
         .icon-btn { background: none; border: none; color: #555; font-size: 14px; padding: 0; cursor: pointer; }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; background: #333; cursor: pointer;}
         .action-icon { cursor: pointer; margin-left: 8px; font-size: 12px; }
         .edit-btn { color: #666; } .del-btn { color: #444; }
-
-        /* Footer */
         .footer-area { text-align: center; padding: 15px 10px; border-top: 1px solid #111; margin-top: 10px; }
         .action-btn { background: #0a0a0a; color: #666; border: 1px solid #222; padding: 6px 12px; border-radius: 4px; font-size: 10px; margin: 2px; }
         #copyArea { width: 100%; height: 50px; background: #111; color: #555; border: 1px solid #333; display: none; margin-top: 10px; }
@@ -160,8 +158,13 @@
                     </div>
 
                     <div class="perf-row">
-                        <span class="perf-title">Trend</span>
-                        <span id="profitTrend" class="perf-data">••••</span>
+                        <span class="perf-title">Monat</span>
+                        <span id="profitMonth" class="perf-data">••••</span>
+                    </div>
+
+                    <div class="perf-row">
+                        <span class="perf-title">Jahr</span>
+                        <span id="profitYear" class="perf-data">••••</span>
                     </div>
 
                 </div>
@@ -218,7 +221,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 24.0 (Auto-Trend)</span>
+            <span style="font-size:8px; color:#222;">V 25.0 (Time Machine)</span>
         </div>
     </div>
 
@@ -241,17 +244,15 @@
     </div>
 
     <script>
-        let prices = { gold: 0, silver: 0, gold24h: 0, silver24h: 0 };
+        // Speicher für aktuelle Preise und Veränderungen
+        let stats = { 
+            gold: 0, silver: 0,
+            g24: 0, g30: 0, g1y: 0,
+            s24: 0, s30: 0, s1y: 0 
+        };
         let privacyMode = true; 
-        
-        // AUTO-TREND SPEICHER
-        let autoTrend = { active: false, baseValue: 0, startDate: null };
 
         async function init() {
-            // Lade AutoTrend
-            const savedTrend = localStorage.getItem('autoTrend');
-            if(savedTrend) autoTrend = JSON.parse(savedTrend);
-
             updateEyeIcon();
             render();
             await fetchPrices();
@@ -266,41 +267,34 @@
             dot.style.background = "orange"; txt.innerText = "Lade...";
             
             try {
-                const timestamp = new Date().getTime();
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&include_24hr_change=true&t=${timestamp}`);
+                // Wir nutzen jetzt den 'coins/markets' Endpunkt, der historische % liefert (24h, 30d, 1y)
+                const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&ids=pax-gold,kinesis-silver&price_change_percentage=24h,30d,1y`);
                 if (!res.ok) throw new Error("Offline");
                 const data = await res.json();
                 
-                prices.gold = data['pax-gold'].eur / 31.1035; 
-                prices.silver = data['kinesis-silver'].eur / 31.1035;
-                prices.gold24h = data['pax-gold'].eur_24h_change;
-                prices.silver24h = data['kinesis-silver'].eur_24h_change;
+                // Zuordnung
+                const goldData = data.find(c => c.id === 'pax-gold');
+                const silverData = data.find(c => c.id === 'kinesis-silver');
+
+                // Preise pro Gramm
+                stats.gold = goldData.current_price / 31.1035; 
+                stats.silver = silverData.current_price / 31.1035;
+                
+                // Prozente (Rohdaten von API)
+                stats.g24 = goldData.price_change_percentage_24h_in_currency || 0;
+                stats.g30 = goldData.price_change_percentage_30d_in_currency || 0;
+                stats.g1y = goldData.price_change_percentage_1y_in_currency || 0;
+
+                stats.s24 = silverData.price_change_percentage_24h_in_currency || 0;
+                stats.s30 = silverData.price_change_percentage_30d_in_currency || 0;
+                stats.s1y = silverData.price_change_percentage_1y_in_currency || 0;
 
                 dot.style.background = "#32d74b";
                 const now = new Date();
-                const timeString = now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-                txt.innerText = "Online (" + timeString + ")";
-                
-                // WICHTIG: Wenn noch kein Trend-Startpunkt existiert und wir Preise haben, setze ihn JETZT.
-                checkAndSetAutoTrend();
-
+                txt.innerText = "Online (" + now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ")";
                 render();
             } catch (e) { 
                 dot.style.background = "red"; txt.innerText = "Offline";
-            }
-        }
-
-        function checkAndSetAutoTrend() {
-            // Nur setzen, wenn noch nicht aktiv, Preise da sind und Items existieren
-            const items = JSON.parse(localStorage.getItem('db')) || [];
-            if (!autoTrend.active && prices.gold > 0 && items.length > 0) {
-                let currentVal = 0;
-                items.forEach(i => {
-                    const p = i.t === 'gold' ? prices.gold : prices.silver;
-                    currentVal += i.w * p;
-                });
-                autoTrend = { active: true, baseValue: currentVal, startDate: Date.now() };
-                localStorage.setItem('autoTrend', JSON.stringify(autoTrend));
             }
         }
 
@@ -317,10 +311,25 @@
             return `<span class="${css}" style="font-weight:700;">${prefix}${valEuro.toLocaleString('de-DE', {maximumFractionDigits:0})}€</span> <span class="${css}" style="font-size:9px;">(${prefix}${valPercent.toFixed(2)}%)</span>`;
         }
 
+        // Hilfsfunktion: Berechnet Gewinn basierend auf API Prozentänderung
+        // Formel: Gewinn = AktuellerWert - (AktuellerWert / (1 + Prozent/100))
+        function calcHistoryProfit(currentValGold, currentValSilver, pctGold, pctSilver) {
+            const oldValGold = currentValGold / (1 + (pctGold / 100));
+            const oldValSilver = currentValSilver / (1 + (pctSilver / 100));
+            
+            const totalCurrent = currentValGold + currentValSilver;
+            const totalOld = oldValGold + oldValSilver;
+            
+            const profitEuro = totalCurrent - totalOld;
+            const profitPercent = totalOld > 0 ? (profitEuro / totalOld) * 100 : 0;
+            
+            return { euro: profitEuro, percent: profitPercent };
+        }
+
         function render() {
             let items = JSON.parse(localStorage.getItem('db')) || [];
             
-            // Sortierung
+            // Sortierung (Gold > Silber, A-Z)
             items.sort((a, b) => {
                 if (a.t !== b.t) return a.t === 'gold' ? -1 : 1;
                 const nameA = a.name.toLowerCase(); const nameB = b.name.toLowerCase();
@@ -338,9 +347,9 @@
             let lastType = null;
 
             items.forEach(i => {
-                const currentP = i.t === 'gold' ? prices.gold : prices.silver;
+                const currentP = i.t === 'gold' ? stats.gold : stats.silver;
                 let val = i.p; 
-                if(prices.gold > 0) {
+                if(stats.gold > 0) {
                     val = i.w * currentP;
                     if (i.t === 'gold') valGoldTotal += val; else valSilverTotal += val;
                 }
@@ -377,8 +386,8 @@
                     <div class="row-sub">
                         <span style="color:#555;">EK: ${fmt(i.p)}</span>
                         <span>
-                             <span class="${!privacyMode && prices.gold > 0 ? itemColor : 'text-neutral'}" style="margin-right:10px;">
-                                ${!privacyMode && prices.gold > 0 ? itemProfitText : ''}
+                             <span class="${!privacyMode && stats.gold > 0 ? itemColor : 'text-neutral'}" style="margin-right:10px;">
+                                ${!privacyMode && stats.gold > 0 ? itemProfitText : ''}
                             </span>
                             <span onclick="edit(${i.id})" class="action-icon edit-btn">✎</span>
                             <span onclick="del(${i.id})" class="action-icon del-btn">×</span>
@@ -394,44 +403,42 @@
 
             const pTotalEl = document.getElementById('profitTotal');
             const pDayEl = document.getElementById('profitDay');
-            const pTrendEl = document.getElementById('profitTrend');
+            const pMonthEl = document.getElementById('profitMonth');
+            const pYearEl = document.getElementById('profitYear');
 
             if(privacyMode) {
                 pTotalEl.innerText = "••••"; pTotalEl.className = "perf-data text-neutral";
                 pDayEl.innerText = "••••"; pDayEl.className = "perf-data text-neutral";
-                pTrendEl.innerText = "••••"; pTrendEl.className = "perf-data text-neutral";
-            } else if (prices.gold > 0) {
+                pMonthEl.innerText = "••••"; pMonthEl.className = "perf-data text-neutral";
+                pYearEl.innerText = "••••"; pYearEl.className = "perf-data text-neutral";
+            } else if (stats.gold > 0) {
                 
-                // 1. GESAMT
+                // 1. GESAMT (LIFETIME)
                 const profitTotalEuro = totalVal - totalInvest;
                 let profitTotalPercent = 0;
                 if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
                 pTotalEl.innerHTML = getChangeHtml(profitTotalEuro, profitTotalPercent);
 
-                // 2. HEUTE (24h API)
-                const goldOld = valGoldTotal / (1 + (prices.gold24h/100));
-                const silverOld = valSilverTotal / (1 + (prices.silver24h/100));
-                const totalOld24h = goldOld + silverOld;
-                const profitDayEuro = totalVal - totalOld24h;
-                let profitDayPercent = 0;
-                if(totalOld24h > 0) profitDayPercent = (profitDayEuro / totalOld24h) * 100;
-                pDayEl.innerHTML = getChangeHtml(profitDayEuro, profitDayPercent);
+                // 2. HEUTE (24h)
+                const d24 = calcHistoryProfit(valGoldTotal, valSilverTotal, stats.g24, stats.s24);
+                pDayEl.innerHTML = getChangeHtml(d24.euro, d24.percent);
 
-                // 3. TREND (AUTO SEIT START)
-                if(autoTrend.active && autoTrend.baseValue > 0) {
-                    const profitTrendEuro = totalVal - autoTrend.baseValue;
-                    const profitTrendPercent = (profitTrendEuro / autoTrend.baseValue) * 100;
-                    pTrendEl.innerHTML = getChangeHtml(profitTrendEuro, profitTrendPercent);
-                } else {
-                    pTrendEl.innerHTML = '<span class="text-neutral">Init...</span>';
-                }
+                // 3. MONAT (30d)
+                const d30 = calcHistoryProfit(valGoldTotal, valSilverTotal, stats.g30, stats.s30);
+                pMonthEl.innerHTML = getChangeHtml(d30.euro, d30.percent);
+
+                // 4. JAHR (1y)
+                const d1y = calcHistoryProfit(valGoldTotal, valSilverTotal, stats.g1y, stats.s1y);
+                pYearEl.innerHTML = getChangeHtml(d1y.euro, d1y.percent);
+
             } else {
-                pTotalEl.innerText = "Offline"; pDayEl.innerText = "Offline"; pTrendEl.innerText = "Offline";
+                pTotalEl.innerText = "Offline"; pDayEl.innerText = "Offline"; 
+                pMonthEl.innerText = "Offline"; pYearEl.innerText = "Offline";
             }
 
             // SPOT & ASSETS
-            document.getElementById('spotGold').innerText = prices.gold > 0 ? Math.round(prices.gold)+'€' : '-';
-            document.getElementById('spotSilver').innerText = prices.silver > 0 ? prices.silver.toFixed(2)+'€' : '-';
+            document.getElementById('spotGold').innerText = stats.gold > 0 ? Math.round(stats.gold)+'€' : '-';
+            document.getElementById('spotSilver').innerText = stats.silver > 0 ? stats.silver.toFixed(2)+'€' : '-';
             
             if (privacyMode) {
                 document.getElementById('goldInfo').innerText = "Gold: ••";
@@ -442,7 +449,7 @@
             }
         }
 
-        // ADD LOGIK: Passt AutoTrend Basis an, damit Trend nicht springt
+        // STANDARD FUNKTIONEN
         function add() {
             let wVal = document.getElementById('weight').value.replace(',', '.');
             let pVal = document.getElementById('buyPrice').value.replace(',', '.');
@@ -450,28 +457,12 @@
             const t = document.getElementById('type').value;
             const name = document.getElementById('itemName').value || (t==='gold'?'Au':'Ag');
             if (!w || !p) return;
-
-            // Trend-Korrektur für neues Item: 
-            // Wir fügen den aktuellen WERT des neuen Items zur Basis hinzu.
-            // Damit bleibt der Trend-Prozentwert stabil (neutral).
-            if(autoTrend.active && prices.gold > 0) {
-                const currentP = t === 'gold' ? prices.gold : prices.silver;
-                const newValue = w * currentP;
-                autoTrend.baseValue += newValue; 
-                localStorage.setItem('autoTrend', JSON.stringify(autoTrend));
-            }
-
             const items = JSON.parse(localStorage.getItem('db')) || [];
             items.push({ id: Date.now(), t, w, p, name });
             localStorage.setItem('db', JSON.stringify(items));
             document.getElementById('weight').value = ''; document.getElementById('buyPrice').value = ''; document.getElementById('itemName').value = '';
-            
-            // Wenn erster Eintrag, startet der Trend Check
-            checkAndSetAutoTrend();
             render();
         }
-
-        // STANDARD FUNKTIONEN
         function edit(id) {
             const items = JSON.parse(localStorage.getItem('db')) || [];
             const item = items.find(i => i.id === id); if(!item) return;
@@ -492,10 +483,6 @@
             if(!w || !p) { alert("Bitte Werte eingeben"); return; }
             let items = JSON.parse(localStorage.getItem('db')) || [];
             const index = items.findIndex(i => i.id === id);
-            
-            // Komplexer Trend-Korrektur bei Edit ist hier weggelassen für Einfachheit, 
-            // da Edit meist nur kleine Korrekturen sind.
-            
             if(index > -1) { items[index] = { id, t, w, p, name }; localStorage.setItem('db', JSON.stringify(items)); render(); closeModal(); }
         }
 
@@ -504,7 +491,7 @@
         function loadFromText(jsonString) { try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); render(); alert("Geladen!"); } } catch(e) { alert("Fehler"); } }
         function uploadFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { loadFromText(e.target.result); }; reader.readAsText(file); }
         function del(id) { if(confirm('Löschen?')) { let items = JSON.parse(localStorage.getItem('db')) || []; items = items.filter(i => i.id !== id); localStorage.setItem('db', JSON.stringify(items)); render(); } }
-        function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); localStorage.removeItem('autoTrend'); render(); } }
+        function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
 
         init();
     </script>
