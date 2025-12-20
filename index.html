@@ -35,12 +35,17 @@
             background: #050505;
         }
 
-        /* Top Bar */
+        /* Top Bar - NEU GESTALTET */
         .top-meta-bar {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 4px;
+            margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 6px;
         }
-        .spot-ticker { font-size: 10px; color: #888; font-family: monospace; }
+        
+        /* Der Spot Preis in der Mitte */
+        .spot-ticker { 
+            font-size: 12px; color: #fff; font-family: -apple-system, sans-serif; font-weight: bold;
+            text-align: center; flex-grow: 1;
+        }
         
         /* DASHBOARD GRID */
         .dashboard-grid {
@@ -53,13 +58,6 @@
         
         .dash-value-main { font-size: 16px; font-weight: 700; color: #fff; line-height: 1.1; }
         .dash-value-sub { font-size: 13px; font-weight: 400; color: #ccc; }
-        
-        /* Allocation Bar (Verteilung nach Wert) */
-        .alloc-bar-container {
-            height: 6px; width: 100%; background: #222; border-radius: 3px; overflow: hidden; display: flex; margin-top: 8px;
-        }
-        .alloc-gold { background-color: #FFD700; height: 100%; }
-        .alloc-silver { background-color: #aaa; height: 100%; }
 
         /* Performance Zeilen */
         .perf-row {
@@ -73,11 +71,11 @@
         /* Asset Leiste (Gramm Anzeige) */
         .asset-bar {
             display: flex; justify-content: space-between;
-            background: #0a0a0a; border-radius: 4px; padding: 4px 6px;
+            background: #0a0a0a; border-radius: 4px; padding: 6px 8px;
             border: 1px solid #151515;
             margin-top: 5px;
         }
-        .asset-item { font-size: 11px; color: #ddd; display: flex; align-items: center; gap: 6px; }
+        .asset-item { font-size: 11px; color: #ddd; display: flex; align-items: center; gap: 6px; font-weight: 500; }
 
         /* 3. EINGABE */
         .input-container { padding: 5px; background: #000; border-top: 1px solid #1a1a1a; }
@@ -132,11 +130,14 @@
             <div class="top-meta-bar">
                 <div onclick="fetchPrices()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
                     <div id="statusDot" class="status-dot"></div>
-                    <span id="statusText" style="font-size:9px; color:#444;">Connect</span>
                 </div>
+                
                 <div class="spot-ticker">
-                    Au: <span id="spotGold" style="color:#FFD700;">-</span> • Ag: <span id="spotSilver" style="color:#aaa;">-</span>
+                    <span style="color:#FFD700; margin-right:3px;">Gold:</span> <span id="spotGold">-</span>
+                    <span style="margin: 0 8px; color:#444;">|</span>
+                    <span style="color:#ccc; margin-right:3px;">Silber:</span> <span id="spotSilver">-</span>
                 </div>
+                
                 <button onclick="togglePrivacy()" class="icon-btn" id="eyeBtn">👁️</button>
             </div>
 
@@ -151,49 +152,20 @@
                         <span class="text-label">Invest (EK)</span>
                         <div id="totalInvest" class="dash-value-sub">••••</div>
                     </div>
-                    <div class="alloc-bar-container" id="allocBar">
-                        <div class="alloc-gold" style="width: 50%"></div>
-                        <div class="alloc-silver" style="width: 50%"></div>
-                    </div>
                 </div>
 
                 <div class="dash-group">
-                    
-                    <div class="perf-row">
-                        <span class="perf-title">Gesamt</span>
-                        <span id="profitTotal" class="perf-data">••••</span>
-                    </div>
-
-                    <div class="perf-row">
-                        <span class="perf-title">Tag</span>
-                        <span id="profitDay" class="perf-data">••••</span>
-                    </div>
-
-                    <div class="perf-row">
-                        <span class="perf-title">Woche</span>
-                        <span id="profitWeek" class="perf-data">••••</span>
-                    </div>
-
-                    <div class="perf-row">
-                        <span class="perf-title">Monat</span>
-                        <span id="profitMonth" class="perf-data">••••</span>
-                    </div>
-                    
-                    <div class="perf-row">
-                        <span class="perf-title">Jahr</span>
-                        <span id="profitYear" class="perf-data">••••</span>
-                    </div>
-
+                    <div class="perf-row"><span class="perf-title">Gesamt</span><span id="profitTotal" class="perf-data">••••</span></div>
+                    <div class="perf-row"><span class="perf-title">Tag</span><span id="profitDay" class="perf-data">••••</span></div>
+                    <div class="perf-row"><span class="perf-title">Woche</span><span id="profitWeek" class="perf-data">••••</span></div>
+                    <div class="perf-row"><span class="perf-title">Monat</span><span id="profitMonth" class="perf-data">••••</span></div>
+                    <div class="perf-row"><span class="perf-title">Jahr</span><span id="profitYear" class="perf-data">••••</span></div>
                 </div>
             </div>
 
             <div class="asset-bar">
-                <div class="asset-item" id="goldInfo">
-                    <span style="color:#FFD700;">●</span> Gold: 0g
-                </div>
-                <div class="asset-item" id="silverInfo">
-                    Silber: 0g <span style="color:#aaa;">●</span>
-                </div>
+                <div class="asset-item" id="goldInfo">Gold: 0g</div>
+                <div class="asset-item" id="silverInfo">Silber: 0g</div>
             </div>
         </div>
 
@@ -236,7 +208,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 27.0 (Gramm Fokus)</span>
+            <span style="font-size:8px; color:#222;">V 28.0 (Spot Focus)</span>
         </div>
     </div>
 
@@ -262,11 +234,10 @@
         let prices = { gold: 0, silver: 0 };
         let privacyMode = true; 
         
-        // ANCHORS (Die "Merkzettel")
         let anchors = { day: null, week: null, month: null, year: null };
 
         async function init() {
-            const savedAnchors = localStorage.getItem('anchors_v26'); // Kompatibel mit v26
+            const savedAnchors = localStorage.getItem('anchors_v26');
             if(savedAnchors) anchors = JSON.parse(savedAnchors);
 
             updateEyeIcon();
@@ -279,8 +250,7 @@
 
         async function fetchPrices() {
             const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            dot.style.background = "orange"; txt.innerText = "Lade...";
+            dot.style.background = "orange";
             
             try {
                 const timestamp = new Date().getTime();
@@ -292,13 +262,11 @@
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
 
                 dot.style.background = "#32d74b";
-                const now = new Date();
-                txt.innerText = "Online (" + now.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'}) + ")";
                 
                 updateAnchors();
                 render();
             } catch (e) { 
-                dot.style.background = "red"; txt.innerText = "Offline";
+                dot.style.background = "red";
             }
         }
 
@@ -430,13 +398,13 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
 
-            // ALLOCATION BAR
-            if(totalVal > 0 && !privacyMode) {
-                const goldPct = (valGoldTotal / totalVal) * 100;
-                const silverPct = 100 - goldPct;
-                document.getElementById('allocBar').innerHTML = `<div class="alloc-gold" style="width: ${goldPct}%"></div><div class="alloc-silver" style="width: ${silverPct}%"></div>`;
+            // SPOT PREISE (OBEN MITTE)
+            if(prices.gold > 0) {
+                document.getElementById('spotGold').innerText = prices.gold.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + "€/g";
+                document.getElementById('spotSilver').innerText = prices.silver.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + "€/g";
             } else {
-                document.getElementById('allocBar').innerHTML = `<div style="width:100%; background:#222;"></div>`;
+                document.getElementById('spotGold').innerText = "-";
+                document.getElementById('spotSilver').innerText = "-";
             }
 
             // PERFORMANCE
@@ -473,23 +441,17 @@
                 pTotalEl.innerText = "Init..."; pDayEl.innerText = "Init..."; pWeekEl.innerText = "Init..."; pMonthEl.innerText = "Init..."; pYearEl.innerText = "Init...";
             }
 
-            // ASSETS (GRAMM ANZEIGE - KORRIGIERT)
+            // ASSETS (GRAMM ANZEIGE)
             if (privacyMode) {
                 document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> Gold: ••`;
                 document.getElementById('silverInfo').innerHTML = `Silber: •• <span style="color:#aaa;">●</span>`;
             } else {
-                // HIER IST DIE ÄNDERUNG: FETT GRAMM
-                let gPct = totalVal>0 ? (valGoldTotal/totalVal)*100 : 0;
-                let sPct = totalVal>0 ? (valSilverTotal/totalVal)*100 : 0;
-
                 document.getElementById('goldInfo').innerHTML = `
                     <span style="color:#FFD700;">●</span> 
                     <span style="font-weight:bold; color:#fff;">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>
-                    <span style="font-size:9px; color:#666; margin-left:2px;">(${gPct.toFixed(0)}%)</span>
                 `;
                 document.getElementById('silverInfo').innerHTML = `
                     <span style="font-weight:bold; color:#fff;">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span>
-                    <span style="font-size:9px; color:#666; margin-left:2px;">(${sPct.toFixed(0)}%)</span>
                     <span style="color:#aaa;">●</span>
                 `;
             }
