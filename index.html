@@ -41,6 +41,7 @@
             margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 6px;
         }
         
+        /* Spot Ticker (Oben Mitte) */
         .spot-ticker { 
             font-size: 12px; color: #fff; font-family: -apple-system, sans-serif; font-weight: bold;
             text-align: center; flex-grow: 1;
@@ -67,14 +68,19 @@
         .perf-title { color: #555; font-size: 9px; text-transform: uppercase; width: 45px; }
         .perf-data { text-align: right; flex-grow: 1; }
 
-        /* Asset Leiste */
+        /* Asset Leiste (Unten - NEU DESIGNED) */
         .asset-bar {
             display: flex; justify-content: space-between;
             background: #0a0a0a; border-radius: 4px; padding: 6px 8px;
             border: 1px solid #151515;
             margin-top: 5px;
         }
-        .asset-item { font-size: 11px; color: #ddd; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .asset-item { 
+            font-size: 11px; color: #ddd; display: flex; align-items: center; gap: 5px; 
+            font-family: -apple-system, sans-serif; /* Einheitliche Schrift */
+        }
+        .asset-val { font-weight: bold; color: #fff; }
+        .asset-sep { color: #444; margin: 0 2px; }
 
         /* 3. EINGABE */
         .input-container { padding: 5px; background: #000; border-top: 1px solid #1a1a1a; }
@@ -207,7 +213,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 30.0 (Stealth Mode)</span>
+            <span style="font-size:8px; color:#222;">V 31.0 (Value & Weight)</span>
         </div>
     </div>
 
@@ -328,6 +334,7 @@
             list.innerHTML = '';
             
             let totalVal = 0; let totalInvest = 0;
+            let valGoldTotal = 0; let valSilverTotal = 0;
             let sumGoldW = 0; let countGold = 0;
             let sumSilverW = 0; let countSilver = 0;
             let lastType = null;
@@ -337,7 +344,9 @@
                 let val = i.p; 
                 if(prices.gold > 0) {
                     val = i.w * currentP;
+                    if (i.t === 'gold') valGoldTotal += val; else valSilverTotal += val;
                 }
+                
                 if (i.t === 'gold') { sumGoldW += i.w; countGold++; } 
                 else { sumSilverW += i.w; countSilver++; }
 
@@ -360,13 +369,12 @@
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 
-                // HIER IST DIE STEALTH LOGIK FÜR DIE LISTE
-                // Namen und Gewicht werden versteckt
+                // STEALTH LOGIK LISTE
                 const displayWeight = privacyMode ? "••" : i.w + "g";
                 const displayName = privacyMode ? "••••" : i.name;
                 const displayVal = privacyMode ? "••••" : val.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
                 const displayEK = privacyMode ? "••••" : i.p.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                const displayProfit = privacyMode ? "" : itemProfitText; // Profit in Liste ganz weg bei Privacy
+                const displayProfit = privacyMode ? "" : itemProfitText; 
 
                 div.innerHTML = `
                     <div class="row-main">
@@ -423,13 +431,9 @@
                 
                 // RENDER LOGIK
                 if (privacyMode) {
-                    // Privacy AN: Nur Tag % zeigen
-                    pTotalEl.innerHTML = "••••";
-                    pWeekEl.innerHTML = "••••";
-                    pMonthEl.innerHTML = "••••";
-                    pYearEl.innerHTML = "••••";
+                    pTotalEl.innerHTML = "••••"; pWeekEl.innerHTML = "••••"; pMonthEl.innerHTML = "••••"; pYearEl.innerHTML = "••••";
                     
-                    // TAG SPEZIAL (ALWAYS ON)
+                    // TAG SPEZIAL
                     const prefix = dDay.pct >= 0 ? '+' : '';
                     const css = dDay.pct >= 0 ? 'text-green' : 'text-red';
                     pDayEl.innerHTML = `<span class="${css}" style="font-weight:bold;">${prefix}${dDay.pct.toFixed(2)}%</span>`;
@@ -437,7 +441,6 @@
                     document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> Gold: ••`;
                     document.getElementById('silverInfo').innerHTML = `Silber: •• <span style="color:#aaa;">●</span>`;
                 } else {
-                    // Privacy AUS: Alles zeigen
                     const profitTotalEuro = totalVal - totalInvest;
                     let profitTotalPercent = 0;
                     if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
@@ -449,8 +452,19 @@
                     const dMonth = calcPerf(anchors.month); pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
                     const dYear = calcPerf(anchors.year); pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
 
-                    document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> <span style="font-weight:bold; color:#fff;">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>`;
-                    document.getElementById('silverInfo').innerHTML = `<span style="font-weight:bold; color:#fff;">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span> <span style="color:#aaa;">●</span>`;
+                    // HIER IST DIE NEUE ANZEIGE MIT WERT
+                    document.getElementById('goldInfo').innerHTML = `
+                        <span style="color:#FFD700;">●</span> 
+                        <span class="asset-val">Gold: ${sumGoldW.toLocaleString('de-DE')} g</span>
+                        <span class="asset-sep">|</span>
+                        <span class="asset-val">${valGoldTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})} €</span>
+                    `;
+                    document.getElementById('silverInfo').innerHTML = `
+                        <span class="asset-val">Silber: ${sumSilverW.toLocaleString('de-DE')} g</span>
+                        <span class="asset-sep">|</span>
+                        <span class="asset-val">${valSilverTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})} €</span>
+                        <span style="color:#aaa;">●</span>
+                    `;
                 }
 
             } else {
