@@ -207,7 +207,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 29.0 (Day Always-On)</span>
+            <span style="font-size:8px; color:#222;">V 30.0 (Stealth Mode)</span>
         </div>
     </div>
 
@@ -359,19 +359,28 @@
 
                 const div = document.createElement('div');
                 div.className = 'list-row';
+                
+                // HIER IST DIE STEALTH LOGIK FÜR DIE LISTE
+                // Namen und Gewicht werden versteckt
+                const displayWeight = privacyMode ? "••" : i.w + "g";
+                const displayName = privacyMode ? "••••" : i.name;
+                const displayVal = privacyMode ? "••••" : val.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+                const displayEK = privacyMode ? "••••" : i.p.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                const displayProfit = privacyMode ? "" : itemProfitText; // Profit in Liste ganz weg bei Privacy
+
                 div.innerHTML = `
                     <div class="row-main">
                         <span>
                             <span style="color:${i.t==='gold'?'#FFD700':'#aaa'}; margin-right:6px;">●</span> 
-                            ${i.w}g <span style="color:#999;">${i.name}</span>
+                            ${displayWeight} <span style="color:#999;">${displayName}</span>
                         </span>
-                        <span style="font-weight:600;">${fmt(val, ' €')}</span>
+                        <span style="font-weight:600;">${displayVal}</span>
                     </div>
                     <div class="row-sub">
-                        <span style="color:#555;">EK: ${fmt(i.p)}</span>
+                        <span style="color:#555;">EK: ${displayEK}</span>
                         <span>
                              <span class="${!privacyMode && prices.gold > 0 ? itemColor : 'text-neutral'}" style="margin-right:10px;">
-                                ${!privacyMode && prices.gold > 0 ? itemProfitText : ''}
+                                ${displayProfit}
                             </span>
                             <span onclick="edit(${i.id})" class="action-icon edit-btn">✎</span>
                             <span onclick="del(${i.id})" class="action-icon del-btn">×</span>
@@ -420,7 +429,7 @@
                     pMonthEl.innerHTML = "••••";
                     pYearEl.innerHTML = "••••";
                     
-                    // TAG SPEZIAL
+                    // TAG SPEZIAL (ALWAYS ON)
                     const prefix = dDay.pct >= 0 ? '+' : '';
                     const css = dDay.pct >= 0 ? 'text-green' : 'text-red';
                     pDayEl.innerHTML = `<span class="${css}" style="font-weight:bold;">${prefix}${dDay.pct.toFixed(2)}%</span>`;
