@@ -41,7 +41,6 @@
             margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 6px;
         }
         
-        /* Spot Ticker */
         .spot-ticker { 
             font-size: 12px; color: #fff; font-family: -apple-system, sans-serif; font-weight: bold;
             text-align: center; flex-grow: 1;
@@ -68,7 +67,7 @@
         .perf-title { color: #555; font-size: 9px; text-transform: uppercase; width: 45px; }
         .perf-data { text-align: right; flex-grow: 1; }
 
-        /* Asset Leiste (Unten - OPTIMIERT) */
+        /* Asset Leiste (Einzeilig & Dezent) */
         .asset-bar {
             display: flex; justify-content: space-between;
             background: #0a0a0a; border-radius: 4px; padding: 6px 8px;
@@ -76,12 +75,13 @@
             margin-top: 5px;
         }
         .asset-item { 
-            font-size: 10px; /* Etwas kleiner damit es passt */
-            color: #ccc; 
+            font-size: 10px; color: #ccc; 
             display: flex; align-items: center; gap: 4px; 
-            white-space: nowrap; /* Verhindert Umbruch */
+            white-space: nowrap; 
         }
-        /* Der Euro Wert wird hervorgehoben */
+        /* Die neue dezente Anzahl */
+        .asset-count { color: #555; font-size: 9px; margin-right: 1px; } 
+        
         .asset-euro { color: #fff; font-weight: 700; }
         .asset-gram { color: #888; }
 
@@ -139,13 +139,11 @@
                 <div onclick="fetchPrices()" style="display:flex; align-items:center; gap:5px; cursor:pointer;">
                     <div id="statusDot" class="status-dot"></div>
                 </div>
-                
                 <div class="spot-ticker">
                     <span style="color:#FFD700; margin-right:3px;">Gold:</span> <span id="spotGold">-</span>
                     <span style="margin: 0 8px; color:#444;">|</span>
                     <span style="color:#ccc; margin-right:3px;">Silber:</span> <span id="spotSilver">-</span>
                 </div>
-                
                 <button onclick="togglePrivacy()" class="icon-btn" id="eyeBtn">👁️</button>
             </div>
 
@@ -216,7 +214,7 @@
             <br>
             <span onclick="wipe()" style="font-size:9px; color:#222; cursor:pointer;">Factory Reset</span>
             <br>
-            <span style="font-size:8px; color:#222;">V 32.0 (Elegant Fit)</span>
+            <span style="font-size:8px; color:#222;">V 35.0 (Count & Calendar)</span>
         </div>
     </div>
 
@@ -239,13 +237,14 @@
     </div>
 
     <script>
-        let prices = { gold: 0, silver: 0 };
+        let prices = { gold: 0, silver: 0, goldChange: 0, silverChange: 0 };
         let privacyMode = true; 
         
-        let anchors = { day: null, week: null, month: null, year: null };
+        // ANCHORS: { val: 1000, id: '2025-W01' }
+        let anchors = { week: null, month: null, year: null };
 
         async function init() {
-            const savedAnchors = localStorage.getItem('anchors_v26');
+            const savedAnchors = localStorage.getItem('anchors_v34');
             if(savedAnchors) anchors = JSON.parse(savedAnchors);
 
             updateEyeIcon();
@@ -262,15 +261,18 @@
             
             try {
                 const timestamp = new Date().getTime();
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&t=${timestamp}`);
+                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=pax-gold,kinesis-silver&vs_currencies=eur&include_24hr_change=true&t=${timestamp}`);
                 if (!res.ok) throw new Error("Offline");
                 const data = await res.json();
                 
                 prices.gold = data['pax-gold'].eur / 31.1035; 
                 prices.silver = data['kinesis-silver'].eur / 31.1035;
+                prices.goldChange = data['pax-gold'].eur_24h_change;
+                prices.silverChange = data['kinesis-silver'].eur_24h_change;
 
                 dot.style.background = "#32d74b";
-                updateAnchors();
+                
+                checkCalendarResets();
                 render();
             } catch (e) { 
                 dot.style.background = "red";
@@ -288,34 +290,45 @@
             return total;
         }
 
-        function updateAnchors() {
+        // KALENDER-LOGIK
+        function checkCalendarResets() {
             const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
             const currentTotal = getCurrentTotal();
             let changed = false;
 
-            if(!anchors.day || anchors.day.date !== todayStr) { anchors.day = { val: currentTotal, date: todayStr }; changed = true; }
-            const isMonday = now.getDay() === 1;
-            if(!anchors.week || (isMonday && anchors.week.date !== todayStr) || getDaysDiff(anchors.week.date) > 7) { anchors.week = { val: currentTotal, date: todayStr }; changed = true; }
-            const thisMonthStr = todayStr.substring(0, 7);
-            if(!anchors.month || anchors.month.date.substring(0, 7) !== thisMonthStr) { anchors.month = { val: currentTotal, date: todayStr }; changed = true; }
-            const thisYearStr = todayStr.substring(0, 4);
-            if(!anchors.year || anchors.year.date.substring(0, 4) !== thisYearStr) { anchors.year = { val: currentTotal, date: todayStr }; changed = true; }
+            // Woche
+            const currentWeekID = getWeekID(now);
+            if(!anchors.week || anchors.week.id !== currentWeekID) {
+                anchors.week = { val: currentTotal, id: currentWeekID }; changed = true;
+            }
+            // Monat
+            const currentMonthID = now.getFullYear() + "-" + (now.getMonth() + 1);
+            if(!anchors.month || anchors.month.id !== currentMonthID) {
+                anchors.month = { val: currentTotal, id: currentMonthID }; changed = true;
+            }
+            // Jahr
+            const currentYearID = now.getFullYear().toString();
+            if(!anchors.year || anchors.year.id !== currentYearID) {
+                anchors.year = { val: currentTotal, id: currentYearID }; changed = true;
+            }
 
-            if(changed) localStorage.setItem('anchors_v26', JSON.stringify(anchors));
+            if(changed) localStorage.setItem('anchors_v34', JSON.stringify(anchors));
         }
 
-        function getDaysDiff(dateStr) {
-            const d1 = new Date(dateStr); const d2 = new Date();
-            return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
+        function getWeekID(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+            return d.getUTCFullYear() + "-W" + weekNo;
         }
 
         function adjustAnchors(euroDiff) {
-            if(anchors.day) anchors.day.val += euroDiff;
             if(anchors.week) anchors.week.val += euroDiff;
             if(anchors.month) anchors.month.val += euroDiff;
             if(anchors.year) anchors.year.val += euroDiff;
-            localStorage.setItem('anchors_v26', JSON.stringify(anchors));
+            localStorage.setItem('anchors_v34', JSON.stringify(anchors));
         }
 
         function getChangeHtml(valEuro, valPercent) {
@@ -338,40 +351,34 @@
             
             let totalVal = 0; let totalInvest = 0;
             let valGoldTotal = 0; let valSilverTotal = 0;
-            let sumGoldW = 0; let countGold = 0;
-            let sumSilverW = 0; let countSilver = 0;
-            let lastType = null;
+            let sumGoldW = 0; let sumSilverW = 0;
+            
+            // COUNTER VARIABLEN
+            let countGold = 0; let countSilver = 0;
 
             items.forEach(i => {
                 const currentP = i.t === 'gold' ? prices.gold : prices.silver;
                 let val = i.p; 
                 if(prices.gold > 0) {
                     val = i.w * currentP;
-                    if (i.t === 'gold') valGoldTotal += val; else valSilverTotal += val;
+                    if(i.t === 'gold') valGoldTotal += val; else valSilverTotal += val;
                 }
                 
+                // ZÄHLEN UND GEWICHTE
                 if (i.t === 'gold') { sumGoldW += i.w; countGold++; } 
                 else { sumSilverW += i.w; countSilver++; }
 
                 totalVal += val;
                 totalInvest += i.p;
 
-                const itemProfit = val - i.p;
-                const itemPrefix = itemProfit >= 0 ? '+' : '';
-                const itemColor = itemProfit >= 0 ? 'text-green' : 'text-red';
-                const itemProfitText = itemPrefix + itemProfit.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-                if(i.t !== lastType) {
-                    const divSep = document.createElement('div');
-                    divSep.className = 'group-divider';
-                    divSep.innerText = i.t === 'gold' ? 'Gold Portfolio' : 'Silber Portfolio';
-                    list.appendChild(divSep);
-                    lastType = i.t;
-                }
-
+                // LISTE
                 const div = document.createElement('div');
                 div.className = 'list-row';
                 
+                const itemProfit = val - i.p;
+                const itemProfitText = (itemProfit>=0?'+':'') + itemProfit.toLocaleString('de-DE', {minimumFractionDigits: 2});
+                const itemColor = itemProfit >= 0 ? 'text-green' : 'text-red';
+
                 const displayWeight = privacyMode ? "••" : i.w + "g";
                 const displayName = privacyMode ? "••••" : i.name;
                 const displayVal = privacyMode ? "••••" : val.toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
@@ -404,7 +411,6 @@
             document.getElementById('totalValue').innerText = fmt(totalVal, ' €');
             document.getElementById('totalInvest').innerText = fmt(totalInvest, ' €');
 
-            // SPOT PREISE
             if(prices.gold > 0) {
                 document.getElementById('spotGold').innerText = prices.gold.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + "€/g";
                 document.getElementById('spotSilver').innerText = prices.silver.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2}) + "€/g";
@@ -422,50 +428,61 @@
             let dDay = {euro:0, pct:0};
 
             if (prices.gold > 0) {
+                // GESAMT
+                const profitTotalEuro = totalVal - totalInvest;
+                let profitTotalPercent = 0;
+                if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
+                
+                // TAG (API)
+                const goldYesterday = valGoldTotal / (1 + prices.goldChange/100);
+                const silverYesterday = valSilverTotal / (1 + prices.silverChange/100);
+                const totalYesterday = goldYesterday + silverYesterday;
+                const dayDiffEuro = totalVal - totalYesterday;
+                const dayDiffPct = totalYesterday > 0 ? (dayDiffEuro / totalYesterday) * 100 : 0;
+                
+                // KALENDER
                 const calcPerf = (anchor) => {
                     if(!anchor) return {euro:0, pct:0};
                     const euro = totalVal - anchor.val;
                     const pct = anchor.val > 0 ? (euro / anchor.val) * 100 : 0;
                     return {euro, pct};
                 };
-                dDay = calcPerf(anchors.day);
-                
+                const dWeek = calcPerf(anchors.week);
+                const dMonth = calcPerf(anchors.month);
+                const dYear = calcPerf(anchors.year);
+
                 if (privacyMode) {
                     pTotalEl.innerHTML = "••••"; pWeekEl.innerHTML = "••••"; pMonthEl.innerHTML = "••••"; pYearEl.innerHTML = "••••";
                     
-                    const prefix = dDay.pct >= 0 ? '+' : '';
-                    const css = dDay.pct >= 0 ? 'text-green' : 'text-red';
-                    pDayEl.innerHTML = `<span class="${css}" style="font-weight:bold;">${prefix}${dDay.pct.toFixed(2)}%</span>`;
+                    const prefix = dayDiffPct >= 0 ? '+' : '';
+                    const css = dayDiffPct >= 0 ? 'text-green' : 'text-red';
+                    pDayEl.innerHTML = `<span class="${css}" style="font-weight:bold;">${prefix}${dayDiffPct.toFixed(2)}%</span>`;
 
                     document.getElementById('goldInfo').innerHTML = `<span style="color:#FFD700;">●</span> Gold: ••`;
                     document.getElementById('silverInfo').innerHTML = `Silber: •• <span style="color:#aaa;">●</span>`;
                 } else {
-                    const profitTotalEuro = totalVal - totalInvest;
-                    let profitTotalPercent = 0;
-                    if(totalInvest > 0) profitTotalPercent = (profitTotalEuro / totalInvest) * 100;
                     pTotalEl.innerHTML = getChangeHtml(profitTotalEuro, profitTotalPercent);
+                    pDayEl.innerHTML = getChangeHtml(dayDiffEuro, dayDiffPct);
+                    pWeekEl.innerHTML = getChangeHtml(dWeek.euro, dWeek.pct);
+                    pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
+                    pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
 
-                    pDayEl.innerHTML = getChangeHtml(dDay.euro, dDay.pct);
-                    
-                    const dWeek = calcPerf(anchors.week); pWeekEl.innerHTML = getChangeHtml(dWeek.euro, dWeek.pct);
-                    const dMonth = calcPerf(anchors.month); pMonthEl.innerHTML = getChangeHtml(dMonth.euro, dMonth.pct);
-                    const dYear = calcPerf(anchors.year); pYearEl.innerHTML = getChangeHtml(dYear.euro, dYear.pct);
-
-                    // OPTIMIERTE ANZEIGE NEBENEINANDER
+                    // --- DIE NEUE ANZEIGE MIT ANZAHL ---
                     document.getElementById('goldInfo').innerHTML = `
                         <span style="color:#FFD700;">●</span> 
+                        <span class="asset-count">(${countGold}x)</span>
                         <span class="asset-gram">${sumGoldW.toLocaleString('de-DE')}g</span>
                         <span class="asset-euro">${valGoldTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})}€</span>
                     `;
                     document.getElementById('silverInfo').innerHTML = `
+                        <span class="asset-count">(${countSilver}x)</span>
                         <span class="asset-gram">${sumSilverW.toLocaleString('de-DE')}g</span>
                         <span class="asset-euro">${valSilverTotal.toLocaleString('de-DE', {minimumFractionDigits:0, maximumFractionDigits:0})}€</span>
                         <span style="color:#aaa;">●</span>
                     `;
                 }
-
             } else {
-                pTotalEl.innerText = "Init..."; pDayEl.innerText = "Init..."; pWeekEl.innerText = "Init..."; pMonthEl.innerText = "Init..."; pYearEl.innerText = "Init...";
+                pTotalEl.innerText = "Init..."; pDayEl.innerText = "Init..."; 
             }
         }
 
@@ -487,6 +504,7 @@
             items.push({ id: Date.now(), t, w, p, name });
             localStorage.setItem('db', JSON.stringify(items));
             document.getElementById('weight').value = ''; document.getElementById('buyPrice').value = ''; document.getElementById('itemName').value = '';
+            checkCalendarResets();
             render();
         }
 
@@ -525,7 +543,7 @@
 
         function copyToClipboard() { const data = localStorage.getItem('db') || '[]'; if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(data).then(() => alert("Kopiert!")); } else { const ta = document.getElementById("copyArea"); ta.style.display="block"; ta.value=data; ta.select(); document.execCommand('copy'); ta.style.display="none"; alert("Kopiert!"); } }
         async function pasteFromClipboard() { try { const text = await navigator.clipboard.readText(); if(text) loadFromText(text); } catch (err) { const code = prompt("Code:"); if(code) loadFromText(code); } }
-        function loadFromText(jsonString) { try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); localStorage.removeItem('anchors_v26'); anchors = { day: null, week: null, month: null, year: null }; fetchPrices(); alert("Geladen!"); } } catch(e) { alert("Fehler"); } }
+        function loadFromText(jsonString) { try { const json = JSON.parse(jsonString); if(Array.isArray(json)) { localStorage.setItem('db', JSON.stringify(json)); localStorage.removeItem('anchors_v34'); anchors = { week: null, month: null, year: null }; fetchPrices(); alert("Geladen!"); } } catch(e) { alert("Fehler"); } }
         function uploadFile(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { loadFromText(e.target.result); }; reader.readAsText(file); }
         function wipe() { if(confirm('Alles löschen?')) { localStorage.clear(); render(); } }
 
